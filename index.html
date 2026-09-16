@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>The Exit 8 - Real 3D Edition</title>
+  <title>The Exit 8 - Accurate High-Graphics Edition</title>
   <style>
     * {
       box-sizing: border-box;
@@ -25,34 +25,52 @@
     }
     #ui-overlay {
       position: absolute;
-      top: 20px;
-      left: 20px;
+      bottom: 30px;
+      right: 30px;
       background: rgba(0, 0, 0, 0.75);
-      border: 1px solid #444;
+      border: 1px solid #333;
       padding: 15px 25px;
       border-radius: 6px;
       color: #fff;
       pointer-events: none;
       z-index: 5;
+      text-align: right;
     }
     #ui-overlay h1 {
-      font-size: 28px;
-      color: #e74c3c;
+      font-size: 32px;
+      color: #fff;
       letter-spacing: 2px;
       font-weight: 800;
+      margin-bottom: 8px;
     }
-    #ui-overlay p {
-      font-size: 13px;
-      color: #aaa;
-      margin-top: 4px;
+    .stamina-box {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+      font-weight: bold;
+      letter-spacing: 1px;
+    }
+    .stamina-bar-bg {
+      width: 140px;
+      height: 12px;
+      background: #222;
+      border: 1px solid #555;
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .stamina-bar-fill {
+      width: 100%;
+      height: 100%;
+      background: #2ecc71;
     }
     #crosshair {
       position: absolute;
       top: 50%;
       left: 50%;
-      width: 6px;
-      height: 6px;
-      background: rgba(255, 255, 255, 0.7);
+      width: 4px;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.8);
       border-radius: 50%;
       transform: translate(-50%, -50%);
       pointer-events: none;
@@ -64,7 +82,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(10, 10, 10, 0.92);
+      background: rgba(10, 10, 10, 0.95);
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -74,20 +92,20 @@
       cursor: pointer;
     }
     #start-screen h1 {
-      font-size: 48px;
+      font-size: 52px;
       margin-bottom: 10px;
       letter-spacing: 4px;
       color: #f39c12;
+      text-shadow: 0 0 10px rgba(243, 156, 18, 0.4);
     }
     #start-screen p {
       font-size: 16px;
-      color: #888;
+      color: #aaa;
     }
     #instructions {
       position: absolute;
       bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
+      left: 20px;
       background: rgba(0, 0, 0, 0.6);
       padding: 8px 16px;
       border-radius: 20px;
@@ -97,7 +115,6 @@
       z-index: 5;
     }
   </style>
-  <!-- Three.js 3D Engine -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
 <body>
@@ -105,13 +122,19 @@
   <div id="game-container">
     <div id="ui-overlay">
       <h1 id="exit-text">EXIT 0</h1>
-      <p>Achte auf Anomalien. Wenn etwas seltsam ist, dreh um!</p>
+      <div class="stamina-box">
+        <span>STAMINA</span>
+        <div class="stamina-bar-bg">
+          <div class="stamina-bar-fill"></div>
+        </div>
+        <span>100%</span>
+      </div>
     </div>
 
     <div id="crosshair"></div>
 
     <div id="instructions">
-      W / S: Vorwärts / Rückwärts | Maus: Umsehen
+      W / S: Gehen | Shift: SPRINTEN | Maus: Umsehen
     </div>
 
     <div id="start-screen">
@@ -121,31 +144,24 @@
   </div>
 
   <script>
-    // --- CANVAS PROCEDURAL TEXTURES GENERATOR ---
+    // --- TEXTURE GENERATORS ---
     function createTileTexture() {
       const canvas = document.createElement('canvas');
-      canvas.width = 512;
-      canvas.height = 512;
+      canvas.width = 1024; canvas.height = 1024;
       const ctx = canvas.getContext('2d');
       
-      ctx.fillStyle = '#e5e3dc';
-      ctx.fillRect(0, 0, 512, 512);
+      ctx.fillStyle = '#e2e0d8';
+      ctx.fillRect(0, 0, 1024, 1024);
 
-      ctx.strokeStyle = '#a8a69f';
-      ctx.lineWidth = 4;
+      ctx.strokeStyle = '#9e9c94';
+      ctx.lineWidth = 3;
 
-      const tileSize = 32;
-      for (let x = 0; x <= 512; x += tileSize) {
-        ctx.beginPath();
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, 512);
-        ctx.stroke();
+      const tileSize = 64;
+      for (let x = 0; x <= 1024; x += tileSize) {
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, 1024); ctx.stroke();
       }
-      for (let y = 0; y <= 512; y += tileSize) {
-        ctx.beginPath();
-        ctx.moveTo(0, y);
-        ctx.lineTo(512, y);
-        ctx.stroke();
+      for (let y = 0; y <= 1024; y += tileSize) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(1024, y); ctx.stroke();
       }
 
       const texture = new THREE.CanvasTexture(canvas);
@@ -156,29 +172,28 @@
 
     function createFloorTexture() {
       const canvas = document.createElement('canvas');
-      canvas.width = 512;
-      canvas.height = 512;
+      canvas.width = 1024; canvas.height = 1024;
       const ctx = canvas.getContext('2d');
 
-      ctx.fillStyle = '#d0d2d3';
-      ctx.fillRect(0, 0, 512, 512);
+      ctx.fillStyle = '#bcbebf';
+      ctx.fillRect(0, 0, 1024, 1024);
 
-      ctx.strokeStyle = '#8a8d90';
-      ctx.lineWidth = 3;
+      ctx.strokeStyle = '#717477';
+      ctx.lineWidth = 4;
 
-      for (let x = 0; x <= 512; x += 64) {
-        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, 512); ctx.stroke();
+      for (let x = 0; x <= 1024; x += 128) {
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, 1024); ctx.stroke();
       }
-      for (let y = 0; y <= 512; y += 64) {
-        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(512, y); ctx.stroke();
+      for (let y = 0; y <= 1024; y += 128) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(1024, y); ctx.stroke();
       }
 
-      // Braille line in middle
-      ctx.fillStyle = '#f1c40f';
-      ctx.fillRect(224, 0, 64, 512);
-      ctx.fillStyle = '#d4ac0d';
-      for (let y = 10; y < 512; y += 20) {
-        ctx.fillRect(232, y, 48, 8);
+      // Yellow Braille Line
+      ctx.fillStyle = '#e67e22';
+      ctx.fillRect(448, 0, 128, 1024);
+      ctx.fillStyle = '#f39c12';
+      for (let y = 16; y < 1024; y += 32) {
+        ctx.fillRect(464, y, 96, 16);
       }
 
       const texture = new THREE.CanvasTexture(canvas);
@@ -187,191 +202,259 @@
       return texture;
     }
 
-    function createPosterTexture(title, color, text) {
+    // --- 7 OFFICIAL POSTER CANVAS DRAWINGS ---
+    function drawPoster(type, options = {}) {
       const canvas = document.createElement('canvas');
-      canvas.width = 256;
-      canvas.height = 384;
+      canvas.width = 512; canvas.height = 768;
       const ctx = canvas.getContext('2d');
 
-      ctx.fillStyle = color;
-      ctx.fillRect(0, 0, 256, 384);
       ctx.fillStyle = '#ffffff';
-      ctx.fillRect(10, 10, 236, 364);
+      ctx.fillRect(0, 0, 512, 768);
 
-      ctx.fillStyle = color;
-      ctx.font = 'bold 22px Arial';
-      ctx.fillText(title, 20, 50);
+      if (type === 'smile') {
+        ctx.fillStyle = '#3498db'; ctx.fillRect(0, 0, 512, 180);
+        ctx.fillStyle = '#fff'; ctx.font = 'bold 36px Arial';
+        ctx.fillText('ニカッと歯科医院', 40, 110);
 
-      ctx.fillStyle = '#333';
-      ctx.font = '14px Arial';
-      ctx.fillText(text, 20, 90);
+        // Cartoon Face
+        ctx.fillStyle = '#ffdbac'; ctx.beginPath(); ctx.arc(256, 420, 140, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#4a235a'; ctx.beginPath(); ctx.arc(256, 320, 145, Math.PI, Math.PI * 2); ctx.fill();
 
-      // Decorative boxes
-      ctx.fillStyle = '#eee';
-      ctx.fillRect(20, 110, 216, 120);
+        if (options.melting) {
+          // Deformed horror face anomaly
+          ctx.fillStyle = '#800000';
+          ctx.beginPath(); ctx.arc(210, 420, 35, 0, Math.PI * 2); ctx.fill();
+          ctx.beginPath(); ctx.arc(300, 450, 45, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = '#000';
+          ctx.beginPath(); ctx.arc(256, 510, 50, 0, Math.PI); ctx.fill();
+        } else {
+          // Normal smile
+          ctx.fillStyle = '#333';
+          ctx.beginPath(); ctx.arc(200, 400, 15, 0, Math.PI * 2); ctx.fill();
+          ctx.beginPath(); ctx.arc(312, 400, 15, 0, Math.PI * 2); ctx.fill();
+          ctx.strokeStyle = '#e74c3c'; ctx.lineWidth = 8;
+          ctx.beginPath(); ctx.arc(256, 440, 40, 0, Math.PI); ctx.stroke();
+        }
 
-      const texture = new THREE.CanvasTexture(canvas);
-      return texture;
+        ctx.fillStyle = '#3498db'; ctx.fillRect(0, 600, 512, 168);
+        ctx.fillStyle = '#f1c40f'; ctx.font = 'bold 42px Arial';
+        ctx.fillText('08/08 OPEN', 120, 710);
+      } 
+      else if (type === 'store') {
+        ctx.fillStyle = '#fcf3cf'; ctx.fillRect(0, 0, 512, 768);
+        ctx.fillStyle = '#c0392b'; ctx.font = 'bold 48px Arial'; ctx.fillText('商店ポスター', 30, 80);
+        // Cat Drawing
+        ctx.fillStyle = '#e67e22'; ctx.beginPath(); ctx.arc(256, 300, 110, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#d35400'; ctx.font = 'bold 32px Arial'; ctx.fillText('アルバイト・パート', 100, 520);
+        ctx.fillStyle = '#7f8c8d'; ctx.fillRect(40, 560, 432, 160);
+      }
+      else if (type === 'dog') {
+        ctx.fillStyle = '#e8f8f5'; ctx.fillRect(0, 0, 512, 768);
+        ctx.fillStyle = '#27ae60'; ctx.fillRect(0, 0, 512, 100);
+        ctx.fillStyle = '#fff'; ctx.font = 'bold 40px Arial'; ctx.fillText('ドッグサロン ズイ', 80, 65);
+        // Dog
+        ctx.fillStyle = '#f39c12'; ctx.beginPath(); ctx.arc(256, 380, 130, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#27ae60'; ctx.fillRect(0, 660, 512, 108);
+      }
+      else if (type === 'concert') {
+        ctx.fillStyle = '#111'; ctx.fillRect(0, 0, 512, 768);
+        if (options.ghost) {
+          // Skeletal Horror Face Anomaly
+          ctx.fillStyle = '#eee'; ctx.beginPath(); ctx.arc(256, 350, 120, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = '#000';
+          ctx.beginPath(); ctx.arc(200, 330, 35, 0, Math.PI * 2); ctx.fill();
+          ctx.beginPath(); ctx.arc(312, 330, 35, 0, Math.PI * 2); ctx.fill();
+          ctx.beginPath(); ctx.arc(256, 420, 45, 0, Math.PI * 2); ctx.fill();
+        } else {
+          ctx.fillStyle = '#8e44ad'; ctx.font = 'bold 42px Arial'; ctx.fillText('2026 CONCERT', 80, 200);
+          ctx.fillStyle = '#ecf0f1'; ctx.font = '28px Arial'; ctx.fillText('PEOPLE LIVE TOUR', 110, 300);
+        }
+      }
+      else if (type === 'makeup') {
+        ctx.fillStyle = '#f5eep6'; ctx.fillRect(0, 0, 512, 768);
+        ctx.fillStyle = '#8e44ad'; ctx.font = 'bold 44px Arial'; ctx.fillText('MAKEUP ART', 110, 120);
+        ctx.fillStyle = '#d2b4de'; ctx.fillRect(60, 180, 392, 450);
+        ctx.fillStyle = '#7d3c98'; ctx.font = 'bold 36px Arial'; ctx.fillText('ココ文字カラ', 150, 700);
+      }
+      else if (type === 'movefes') {
+        ctx.fillStyle = '#1b2631'; ctx.fillRect(0, 0, 512, 768);
+        ctx.fillStyle = '#e74c3c'; ctx.font = 'bold 52px Arial'; ctx.fillText('映画フェス', 130, 150);
+        ctx.fillStyle = '#f39c12'; ctx.font = 'bold 36px Arial'; ctx.fillText('MOVEFES 2026', 120, 240);
+        ctx.fillStyle = '#bdc3c7'; ctx.fillRect(50, 300, 412, 380);
+      }
+      else if (type === 'camera') {
+        ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, 512, 768);
+        ctx.lineWidth = 16; ctx.strokeStyle = '#000'; ctx.strokeRect(20, 20, 472, 728);
+        // Security Camera Drawing
+        ctx.fillStyle = '#000'; ctx.fillRect(150, 180, 220, 120);
+        ctx.beginPath(); ctx.arc(150, 240, 60, 0, Math.PI * 2); ctx.fill();
+
+        // Eye tracking logic center
+        const eyeX = options.eyeX || 150;
+        const eyeY = options.eyeY || 240;
+        ctx.fillStyle = '#e74c3c'; ctx.beginPath(); ctx.arc(eyeX, eyeY, 20, 0, Math.PI * 2); ctx.fill();
+
+        ctx.fillStyle = '#000'; ctx.font = 'bold 42px Arial'; ctx.fillText('監視カメラ作動中', 80, 550);
+        ctx.font = '22px Arial'; ctx.fillText('防犯カメラ録画中・警備強化区域', 90, 620);
+      }
+
+      return new THREE.CanvasTexture(canvas);
     }
 
-    // --- GAME ENGINE SETUP ---
+    // --- SCENE SETUP ---
     const container = document.getElementById('game-container');
     const startScreen = document.getElementById('start-screen');
     const exitText = document.getElementById('exit-text');
 
     const scene = new THREE.Scene();
-    scene.fog = new THREE.FogExp2(0x050505, 0.03);
+    scene.fog = new THREE.FogExp2(0x0a0a0a, 0.025);
 
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     container.appendChild(renderer.domElement);
 
-    // Textures
-    const wallTexture = createTileTexture();
-    wallTexture.repeat.set(10, 2);
-    const floorTexture = createFloorTexture();
-    floorTexture.repeat.set(2, 20);
-
-    const wallMaterial = new THREE.MeshPhongMaterial({ map: wallTexture, roughness: 0.3 });
-    const floorMaterial = new THREE.MeshPhongMaterial({ map: floorTexture, roughness: 0.5 });
-    const ceilingMaterial = new THREE.MeshPhongMaterial({ color: 0xcccccc, roughness: 0.8 });
-
     // Tunnel Dimensions
-    const TUNNEL_WIDTH = 5;
-    const TUNNEL_HEIGHT = 3.5;
-    const TUNNEL_LENGTH = 30;
+    const TUNNEL_WIDTH = 6;
+    const TUNNEL_HEIGHT = 4;
+    const TUNNEL_LENGTH = 36;
 
     const tunnelGroup = new THREE.Group();
     scene.add(tunnelGroup);
 
-    // Floor
-    const floorGeo = new THREE.PlaneGeometry(TUNNEL_WIDTH, TUNNEL_LENGTH);
-    const floor = new THREE.Mesh(floorGeo, floorMaterial);
-    floor.rotation.x = -Math.PI / 2;
-    floor.position.y = 0;
-    floor.position.z = -TUNNEL_LENGTH / 2;
+    // Wall & Floor Materials
+    const wallTex = createTileTexture(); wallTex.repeat.set(12, 2);
+    const floorTex = createFloorTexture(); floorTex.repeat.set(2, 24);
+
+    const wallMat = new THREE.MeshStandardMaterial({ map: wallTex, roughness: 0.2, metalness: 0.1 });
+    const floorMat = new THREE.MeshStandardMaterial({ map: floorTex, roughness: 0.3, metalness: 0.1 });
+    const ceilingMat = new THREE.MeshStandardMaterial({ color: 0xd5d8dc, roughness: 0.8 });
+
+    // Build Tunnel
+    const floor = new THREE.Mesh(new THREE.PlaneGeometry(TUNNEL_WIDTH, TUNNEL_LENGTH), floorMat);
+    floor.rotation.x = -Math.PI / 2; floor.position.z = -TUNNEL_LENGTH / 2;
     tunnelGroup.add(floor);
 
-    // Ceiling
-    const ceilingGeo = new THREE.PlaneGeometry(TUNNEL_WIDTH, TUNNEL_LENGTH);
-    const ceiling = new THREE.Mesh(ceilingGeo, ceilingMaterial);
-    ceiling.rotation.x = Math.PI / 2;
-    ceiling.position.y = TUNNEL_HEIGHT;
-    ceiling.position.z = -TUNNEL_LENGTH / 2;
+    const ceiling = new THREE.Mesh(new THREE.PlaneGeometry(TUNNEL_WIDTH, TUNNEL_LENGTH), ceilingMat);
+    ceiling.rotation.x = Math.PI / 2; ceiling.position.y = TUNNEL_HEIGHT; ceiling.position.z = -TUNNEL_LENGTH / 2;
     tunnelGroup.add(ceiling);
 
-    // Left Wall
-    const leftWallGeo = new THREE.PlaneGeometry(TUNNEL_LENGTH, TUNNEL_HEIGHT);
-    const leftWall = new THREE.Mesh(leftWallGeo, wallMaterial);
-    leftWall.rotation.y = Math.PI / 2;
-    leftWall.position.x = -TUNNEL_WIDTH / 2;
-    leftWall.position.y = TUNNEL_HEIGHT / 2;
-    leftWall.position.z = -TUNNEL_LENGTH / 2;
+    const leftWall = new THREE.Mesh(new THREE.PlaneGeometry(TUNNEL_LENGTH, TUNNEL_HEIGHT), wallMat);
+    leftWall.rotation.y = Math.PI / 2; leftWall.position.x = -TUNNEL_WIDTH / 2; leftWall.position.y = TUNNEL_HEIGHT / 2; leftWall.position.z = -TUNNEL_LENGTH / 2;
     tunnelGroup.add(leftWall);
 
-    // Right Wall
-    const rightWall = new THREE.Mesh(leftWallGeo, wallMaterial);
-    rightWall.rotation.y = -Math.PI / 2;
-    rightWall.position.x = TUNNEL_WIDTH / 2;
-    rightWall.position.y = TUNNEL_HEIGHT / 2;
-    rightWall.position.z = -TUNNEL_LENGTH / 2;
+    const rightWall = new THREE.Mesh(new THREE.PlaneGeometry(TUNNEL_LENGTH, TUNNEL_HEIGHT), wallMat);
+    rightWall.rotation.y = -Math.PI / 2; rightWall.position.x = TUNNEL_WIDTH / 2; rightWall.position.y = TUNNEL_HEIGHT / 2; rightWall.position.z = -TUNNEL_LENGTH / 2;
     tunnelGroup.add(rightWall);
 
     // Ceiling Lights
     const lights = [];
     for (let z = -4; z > -TUNNEL_LENGTH; z -= 6) {
-      const lightGeo = new THREE.BoxGeometry(1.2, 0.1, 0.4);
-      const lightMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
-      const lightMesh = new THREE.Mesh(lightGeo, lightMat);
-      lightMesh.position.set(0, TUNNEL_HEIGHT - 0.05, z);
-      tunnelGroup.add(lightMesh);
+      const lMesh = new THREE.Mesh(
+        new THREE.BoxGeometry(1.4, 0.1, 0.5),
+        new THREE.MeshBasicMaterial({ color: 0xffffff })
+      );
+      lMesh.position.set(0, TUNNEL_HEIGHT - 0.05, z);
+      tunnelGroup.add(lMesh);
 
-      const pLight = new THREE.PointLight(0xfffae6, 0.8, 12);
+      const pLight = new THREE.PointLight(0xfff8e7, 1.2, 14);
       pLight.position.set(0, TUNNEL_HEIGHT - 0.2, z);
+      pLight.castShadow = true;
       tunnelGroup.add(pLight);
       lights.push(pLight);
     }
 
-    // Yellow Exit 8 Sign
-    const signCanvas = document.createElement('canvas');
-    signCanvas.width = 512; signCanvas.height = 128;
+    // Exit 8 Sign
+    const signCanvas = document.createElement('canvas'); signCanvas.width = 512; signCanvas.height = 128;
     const sCtx = signCanvas.getContext('2d');
-    sCtx.fillStyle = '#f39c12'; sCtx.fillRect(0, 0, 512, 128);
-    sCtx.fillStyle = '#000'; sCtx.font = 'bold 60px Arial'; sCtx.textAlign = 'center';
-    sCtx.fillText('↑ 出口 8 Exit', 256, 85);
+    sCtx.fillStyle = '#f1c40f'; sCtx.fillRect(0, 0, 512, 128);
+    sCtx.fillStyle = '#000'; sCtx.font = 'bold 64px Arial'; sCtx.textAlign = 'center';
+    sCtx.fillText('↑ 出口 8 Exit', 256, 88);
     const signTex = new THREE.CanvasTexture(signCanvas);
 
-    const signGeo = new THREE.BoxGeometry(2.5, 0.6, 0.1);
-    const signMat = new THREE.MeshBasicMaterial({ map: signTex });
-    const exitSign = new THREE.Mesh(signGeo, signMat);
-    exitSign.position.set(0, TUNNEL_HEIGHT - 0.5, -8);
+    const exitSign = new THREE.Mesh(
+      new THREE.BoxGeometry(2.8, 0.7, 0.1),
+      new THREE.MeshStandardMaterial({ map: signTex, roughness: 0.1 })
+    );
+    exitSign.position.set(0, TUNNEL_HEIGHT - 0.6, -10);
     tunnelGroup.add(exitSign);
 
-    // Posters on Wall
-    const posterMaterials = [
-      new THREE.MeshBasicMaterial({ map: createPosterTexture('DENTAL CLINIC', '#e74c3c', 'With a Smile / Open 08/08') }),
-      new THREE.MeshBasicMaterial({ map: createPosterTexture('JOB OFFER', '#3498db', 'Part time job available now!') }),
-      new THREE.MeshBasicMaterial({ map: createPosterTexture('CONCERT 2026', '#2ecc71', 'Live music at Tokyo Dome') })
-    ];
-
+    // --- POSTERS SETUP (EXACT 7 PLAKATS) ---
+    const posterTypes = ['smile', 'store', 'dog', 'concert', 'makeup', 'movefes', 'camera'];
     const posterMeshes = [];
-    posterMaterials.forEach((mat, idx) => {
-      const pGeo = new THREE.PlaneGeometry(0.8, 1.2);
-      const pMesh = new THREE.Mesh(pGeo, mat);
-      pMesh.position.set(-TUNNEL_WIDTH / 2 + 0.01, 1.8, -10 - idx * 5);
-      pMesh.rotation.y = Math.PI / 2;
-      tunnelGroup.add(pMesh);
-      posterMeshes.push(pMesh);
-    });
 
-    // --- MAN IN SUIT CREATION ---
+    const posterGroup = new THREE.Group();
+    tunnelGroup.add(posterGroup);
+
+    function createPosters(anomaly = 0) {
+      // Clear old posters
+      while(posterGroup.children.length > 0) { 
+        posterGroup.remove(posterGroup.children[0]); 
+      }
+      posterMeshes.length = 0;
+
+      const isTakeover = (anomaly === 3); // The Makeup Takeover
+      const isGrowth = (anomaly === 4);   // The Growth Spurt
+
+      posterTypes.forEach((type, idx) => {
+        let pType = isTakeover ? 'makeup' : type;
+        let opts = {};
+        if (type === 'smile' && anomaly === 1) opts.melting = true;
+        if (type === 'concert' && anomaly === 2) opts.ghost = true;
+
+        const mat = new THREE.MeshBasicMaterial({ map: drawPoster(pType, opts) });
+        const height = isGrowth ? 3.2 : 1.5;
+        const pGeo = new THREE.PlaneGeometry(1.0, height);
+        const mesh = new THREE.Mesh(pGeo, mat);
+
+        mesh.position.set(-TUNNEL_WIDTH / 2 + 0.02, 2.0, -6 - idx * 4);
+        mesh.rotation.y = Math.PI / 2;
+
+        posterGroup.add(mesh);
+        posterMeshes.push({ mesh, type });
+      });
+    }
+
+    // --- MAN IN SUIT SETUP ---
     const manGroup = new THREE.Group();
+    const suitMat = new THREE.MeshStandardMaterial({ color: 0x151515, roughness: 0.6 });
+    const skinMat = new THREE.MeshStandardMaterial({ color: 0xffdbac, roughness: 0.8 });
 
-    // Head
-    const headGeo = new THREE.SphereGeometry(0.18, 16, 16);
-    const skinMat = new THREE.MeshPhongMaterial({ color: 0xffdbac });
-    const head = new THREE.Mesh(headGeo, skinMat);
-    head.position.y = 1.65;
-    manGroup.add(head);
+    const head = new THREE.Mesh(new THREE.SphereGeometry(0.18, 16, 16), skinMat);
+    head.position.y = 1.68; manGroup.add(head);
 
-    // Suit Body
-    const suitMat = new THREE.MeshPhongMaterial({ color: 0x222222 });
-    const bodyGeo = new THREE.CylinderGeometry(0.22, 0.2, 0.7);
-    const body = new THREE.Mesh(bodyGeo, suitMat);
-    body.position.y = 1.15;
-    manGroup.add(body);
+    const body = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.2, 0.75), suitMat);
+    body.position.y = 1.15; manGroup.add(body);
 
-    // Legs
     const legGeo = new THREE.CylinderGeometry(0.08, 0.07, 0.8);
-    const leftLeg = new THREE.Mesh(legGeo, suitMat);
-    leftLeg.position.set(-0.12, 0.4, 0);
-    const rightLeg = new THREE.Mesh(legGeo, suitMat);
-    rightLeg.position.set(0.12, 0.4, 0);
-    manGroup.add(leftLeg);
-    manGroup.add(rightLeg);
+    const leftLeg = new THREE.Mesh(legGeo, suitMat); leftLeg.position.set(-0.12, 0.4, 0);
+    const rightLeg = new THREE.Mesh(legGeo, suitMat); rightLeg.position.set(0.12, 0.4, 0);
+    manGroup.add(leftLeg); manGroup.add(rightLeg);
 
-    // Briefcase
-    const caseGeo = new THREE.BoxGeometry(0.1, 0.25, 0.35);
-    const caseMat = new THREE.MeshPhongMaterial({ color: 0x111111 });
-    const briefcase = new THREE.Mesh(caseGeo, caseMat);
-    briefcase.position.set(0.3, 0.8, 0);
-    manGroup.add(briefcase);
+    const briefcase = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.28, 0.38), new THREE.MeshStandardMaterial({ color: 0x050505 }));
+    briefcase.position.set(0.32, 0.8, 0); manGroup.add(briefcase);
 
     scene.add(manGroup);
 
-    // --- GAME STATE & ANOMALIES ---
+    function resetMan() {
+      manGroup.position.set(1.0, 0, -32);
+    }
+    resetMan();
+
+    // --- GAME STATE ---
     let currentExit = 0;
     let anomalyPresent = false;
     let anomalyType = 0; 
-    // Anomalies: 1 = Giant Man, 2 = Red Lights, 3 = Reversed Sign, 4 = Fast Walking Man
-
-    function resetManPosition() {
-      manGroup.position.set(0.8, 0, -26);
-      manGroup.scale.set(1, 1, 1);
-    }
-    resetManPosition();
+    // Anomalies:
+    // 0 = Red Lights (ONLY NON-POSTER ANOMALY)
+    // 1 = Melting Face
+    // 2 = Ghost Face
+    // 3 = Makeup Takeover
+    // 4 = Growth Spurt
+    // 5 = Tracking Eyes
+    // 6 = Stalker Sign
 
     function triggerNextSection(turnedBack) {
       if (turnedBack) {
@@ -390,55 +473,40 @@
 
       exitText.innerText = `EXIT ${currentExit}`;
       if (currentExit >= 8) {
-        alert("🎉 Du hast EXIT 8 erreicht und bist entkommen!");
+        alert("🎉 EXIT 8 REACHED! You escaped!");
         currentExit = 0;
         exitText.innerText = `EXIT 0`;
       }
 
-      // Determine new Anomaly
+      // Generate Anomaly
       anomalyPresent = Math.random() < 0.5;
-      anomalyType = anomalyPresent ? Math.floor(Math.random() * 4) + 1 : 0;
+      anomalyType = anomalyPresent ? Math.floor(Math.random() * 7) : -1;
 
-      // Apply Anomaly Effects
-      if (anomalyType === 1) { // Giant Man
-        manGroup.scale.set(2.2, 2.2, 2.2);
-      } else {
-        manGroup.scale.set(1, 1, 1);
-      }
-
+      // Apply Light Color
       lights.forEach(l => {
-        l.color.setHex(anomalyType === 2 ? 0xff0000 : 0xfffae6);
+        l.color.setHex((anomalyPresent && anomalyType === 0) ? 0xff0000 : 0xfff8e7);
       });
 
-      if (anomalyType === 3) { // Reversed Sign
-        exitSign.rotation.y = Math.PI;
-      } else {
-        exitSign.rotation.y = 0;
-      }
+      // Build Posters based on anomaly
+      createPosters(anomalyPresent ? anomalyType : -1);
 
-      // Reset Player Position to tunnel start
-      camera.position.set(0, 1.6, -2);
-      resetManPosition();
+      // Reset positions
+      camera.position.set(0, 1.7, -2);
+      resetMan();
     }
 
-    // --- CONTROLS SETUP ---
-    camera.position.set(0, 1.6, -2);
+    createPosters(-1);
 
-    let moveForward = false;
-    let moveBackward = false;
-    let yaw = 0;
-    let pitch = 0;
+    // --- CONTROLS & LOOP ---
+    camera.position.set(0, 1.7, -2);
 
-    startScreen.addEventListener('click', () => {
-      container.requestPointerLock();
-    });
+    let moveForward = false, moveBackward = false, isSprinting = false;
+    let yaw = 0, pitch = 0;
+
+    startScreen.addEventListener('click', () => container.requestPointerLock());
 
     document.addEventListener('pointerlockchange', () => {
-      if (document.pointerLockElement === container) {
-        startScreen.style.display = 'none';
-      } else {
-        startScreen.style.display = 'flex';
-      }
+      startScreen.style.display = (document.pointerLockElement === container) ? 'none' : 'flex';
     });
 
     document.addEventListener('mousemove', (e) => {
@@ -452,11 +520,13 @@
     window.addEventListener('keydown', (e) => {
       if (e.code === 'KeyW' || e.code === 'ArrowUp') moveForward = true;
       if (e.code === 'KeyS' || e.code === 'ArrowDown') moveBackward = true;
+      if (e.shiftKey) isSprinting = true;
     });
 
     window.addEventListener('keyup', (e) => {
       if (e.code === 'KeyW' || e.code === 'ArrowUp') moveForward = false;
       if (e.code === 'KeyS' || e.code === 'ArrowDown') moveBackward = false;
+      if (!e.shiftKey) isSprinting = false;
     });
 
     window.addEventListener('resize', () => {
@@ -465,43 +535,49 @@
       renderer.setSize(window.innerWidth, window.innerHeight);
     });
 
-    // --- GAME LOOP ---
     const clock = new THREE.Clock();
 
     function animate() {
       requestAnimationFrame(animate);
-
       const delta = clock.getDelta();
 
-      // Camera Rotation
+      // Camera orientation
       camera.rotation.order = 'YXZ';
       camera.rotation.y = yaw;
       camera.rotation.x = pitch;
 
-      // Player Movement
-      const moveSpeed = 3.5 * delta;
-      if (moveForward) {
-        camera.position.z -= moveSpeed;
+      // Movement
+      const speed = (isSprinting ? 5.5 : 3.0) * delta;
+      if (moveForward) camera.position.z -= speed;
+      if (moveBackward) camera.position.z += speed;
+
+      // Man Walking
+      manGroup.position.z += 1.8 * delta;
+      const legTime = clock.getElapsedTime() * 7;
+      leftLeg.rotation.x = Math.sin(legTime) * 0.5;
+      rightLeg.rotation.x = -Math.sin(legTime) * 0.5;
+
+      // Stalker Sign Anomaly (#6)
+      if (anomalyPresent && anomalyType === 6) {
+        const lastPoster = posterMeshes[6];
+        if (lastPoster) {
+          lastPoster.mesh.position.z = camera.position.z - 3;
+        }
       }
-      if (moveBackward) {
-        camera.position.z += moveSpeed;
+
+      // Tracking Eyes Anomaly (#5)
+      if (anomalyPresent && anomalyType === 5) {
+        const camPoster = posterMeshes[6];
+        if (camPoster) {
+          const eyeX = 150 + Math.sin(clock.getElapsedTime() * 4) * 30;
+          camPoster.mesh.material.map = drawPoster('camera', { eyeX: eyeX, eyeY: 240 });
+        }
       }
 
-      // Man Walking Towards Player
-      const manSpeed = (anomalyType === 4 ? 4.5 : 1.8) * delta;
-      manGroup.position.z += manSpeed;
-
-      // Leg Walking Animation
-      const time = clock.getElapsedTime() * 8;
-      leftLeg.rotation.x = Math.sin(time) * 0.5;
-      rightLeg.rotation.x = -Math.sin(time) * 0.5;
-
-      // Bounds Check / Trigger Logic
-      if (camera.position.z < -28) {
-        // Walked through to the end forward
+      // Loop Boundaries
+      if (camera.position.z < -34) {
         triggerNextSection(false);
       } else if (camera.position.z > 1) {
-        // Turned around and walked back out
         triggerNextSection(true);
       }
 
