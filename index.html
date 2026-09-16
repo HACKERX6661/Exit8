@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>The Exit 8 - Performance & WASD Edition</title>
+  <title>The Exit 8 - Ultra HD Posters & WASD</title>
   <style>
     * {
       box-sizing: border-box;
@@ -144,18 +144,18 @@
   </div>
 
   <script>
-    // --- TEXTURES ---
+    // --- HIGH RESOLUTION TEXTURE GENERATORS ---
     function createTileTexture() {
       const canvas = document.createElement('canvas');
-      canvas.width = 512; canvas.height = 512;
+      canvas.width = 1024; canvas.height = 1024;
       const ctx = canvas.getContext('2d');
-      ctx.fillStyle = '#dbd9cf'; ctx.fillRect(0, 0, 512, 512);
-      ctx.strokeStyle = '#8c8a82'; ctx.lineWidth = 3;
-      for (let x = 0; x <= 512; x += 64) {
-        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, 512); ctx.stroke();
+      ctx.fillStyle = '#dbd9cf'; ctx.fillRect(0, 0, 1024, 1024);
+      ctx.strokeStyle = '#8c8a82'; ctx.lineWidth = 4;
+      for (let x = 0; x <= 1024; x += 128) {
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, 1024); ctx.stroke();
       }
-      for (let y = 0; y <= 512; y += 64) {
-        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(512, y); ctx.stroke();
+      for (let y = 0; y <= 1024; y += 128) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(1024, y); ctx.stroke();
       }
       const texture = new THREE.CanvasTexture(canvas);
       texture.wrapS = THREE.RepeatWrapping; texture.wrapT = THREE.RepeatWrapping;
@@ -164,80 +164,191 @@
 
     function createFloorTexture() {
       const canvas = document.createElement('canvas');
-      canvas.width = 512; canvas.height = 512;
+      canvas.width = 1024; canvas.height = 1024;
       const ctx = canvas.getContext('2d');
-      ctx.fillStyle = '#b0b2b5'; ctx.fillRect(0, 0, 512, 512);
-      ctx.strokeStyle = '#5a5d60'; ctx.lineWidth = 3;
-      for (let x = 0; x <= 512; x += 128) {
-        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, 512); ctx.stroke();
+      ctx.fillStyle = '#b0b2b5'; ctx.fillRect(0, 0, 1024, 1024);
+      ctx.strokeStyle = '#5a5d60'; ctx.lineWidth = 4;
+      for (let x = 0; x <= 1024; x += 256) {
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, 1024); ctx.stroke();
       }
-      for (let y = 0; y <= 512; y += 128) {
-        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(512, y); ctx.stroke();
+      for (let y = 0; y <= 1024; y += 256) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(1024, y); ctx.stroke();
       }
-      ctx.fillStyle = '#d35400'; ctx.fillRect(224, 0, 64, 512);
+      ctx.fillStyle = '#d35400'; ctx.fillRect(448, 0, 128, 1024);
       ctx.fillStyle = '#f39c12';
-      for (let y = 16; y < 512; y += 32) { ctx.fillRect(232, y, 48, 16); }
+      for (let y = 32; y < 1024; y += 64) { ctx.fillRect(464, y, 96, 32); }
       const texture = new THREE.CanvasTexture(canvas);
       texture.wrapS = THREE.RepeatWrapping; texture.wrapT = THREE.RepeatWrapping;
       return texture;
     }
 
-    // --- 7 POSTERS ---
+    // --- ULTRA HIGH GRAPHICS 4K POSTERS (2048 x 3072 CANVAS) ---
     function drawPoster(type, options = {}) {
       const canvas = document.createElement('canvas');
-      canvas.width = 256; canvas.height = 384;
+      canvas.width = 2048; canvas.height = 3072;
       const ctx = canvas.getContext('2d');
-      ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, 256, 384);
+
+      // Background Base
+      ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, 2048, 3072);
 
       if (type === 'smile') {
-        ctx.fillStyle = '#3498db'; ctx.fillRect(0, 0, 256, 90);
-        ctx.fillStyle = '#fff'; ctx.font = 'bold 18px Arial'; ctx.fillText('ニカッと歯科医院', 20, 55);
-        ctx.fillStyle = '#ffdbac'; ctx.beginPath(); ctx.arc(128, 210, 70, 0, Math.PI * 2); ctx.fill();
-        ctx.fillStyle = '#4a235a'; ctx.beginPath(); ctx.arc(128, 160, 72, Math.PI, Math.PI * 2); ctx.fill();
+        // Header Gradient
+        const grad = ctx.createLinearGradient(0, 0, 0, 800);
+        grad.addColorStop(0, '#1d6fa5'); grad.addColorStop(1, '#3498db');
+        ctx.fillStyle = grad; ctx.fillRect(0, 0, 2048, 800);
+
+        ctx.fillStyle = '#ffffff'; ctx.font = 'bold 130px "Hiragino Sans", "Meiryo", sans-serif';
+        ctx.fillText('ニカッと歯科医院', 200, 480);
+        ctx.font = '60px sans-serif'; ctx.fillText('DENTAL CLINIC & ORTHODONTICS', 205, 620);
+
+        // Portrait Character
         if (options.melting) {
+          // Deformed Horror Face Anomaly
+          ctx.fillStyle = '#e0ac69'; ctx.beginPath(); ctx.arc(1024, 1600, 500, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = '#4a235a'; ctx.beginPath(); ctx.arc(1024, 1250, 520, Math.PI, Math.PI * 2); ctx.fill();
+
+          // Dripping / Melting Eyes & Mouth
+          ctx.fillStyle = '#600000';
+          ctx.beginPath(); ctx.arc(800, 1550, 140, 0, Math.PI * 2); ctx.fill();
+          ctx.beginPath(); ctx.arc(1250, 1700, 180, 0, Math.PI * 2); ctx.fill();
+
+          ctx.fillStyle = '#0a0000';
+          ctx.beginPath(); ctx.arc(1024, 1950, 220, 0, Math.PI); ctx.fill();
+          
           ctx.fillStyle = '#800000';
-          ctx.beginPath(); ctx.arc(105, 210, 18, 0, Math.PI * 2); ctx.fill();
-          ctx.beginPath(); ctx.arc(150, 225, 22, 0, Math.PI * 2); ctx.fill();
+          ctx.fillRect(750, 1550, 100, 500);
+          ctx.fillRect(1150, 1700, 150, 450);
         } else {
-          ctx.fillStyle = '#333';
-          ctx.beginPath(); ctx.arc(100, 200, 8, 0, Math.PI * 2); ctx.fill();
-          ctx.beginPath(); ctx.arc(156, 200, 8, 0, Math.PI * 2); ctx.fill();
+          // Normal Character
+          ctx.fillStyle = '#ffdbac'; ctx.beginPath(); ctx.arc(1024, 1600, 500, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = '#4a235a'; ctx.beginPath(); ctx.arc(1024, 1250, 520, Math.PI, Math.PI * 2); ctx.fill();
+
+          // Cheerful Eyes & Smile
+          ctx.fillStyle = '#222';
+          ctx.beginPath(); ctx.arc(820, 1500, 50, 0, Math.PI * 2); ctx.fill();
+          ctx.beginPath(); ctx.arc(1228, 1500, 50, 0, Math.PI * 2); ctx.fill();
+          
+          ctx.strokeStyle = '#e74c3c'; ctx.lineWidth = 30; ctx.lineCap = 'round';
+          ctx.beginPath(); ctx.arc(1024, 1680, 180, 0.1 * Math.PI, 0.9 * Math.PI); ctx.stroke();
         }
-        ctx.fillStyle = '#3498db'; ctx.fillRect(0, 300, 256, 84);
-      } else if (type === 'store') {
-        ctx.fillStyle = '#fcf3cf'; ctx.fillRect(0, 0, 256, 384);
-        ctx.fillStyle = '#c0392b'; ctx.font = 'bold 24px Arial'; ctx.fillText('商店ポスター', 15, 40);
-        ctx.fillStyle = '#e67e22'; ctx.beginPath(); ctx.arc(128, 150, 55, 0, Math.PI * 2); ctx.fill();
-      } else if (type === 'dog') {
-        ctx.fillStyle = '#e8f8f5'; ctx.fillRect(0, 0, 256, 384);
-        ctx.fillStyle = '#27ae60'; ctx.fillRect(0, 0, 256, 50);
-        ctx.fillStyle = '#fff'; ctx.font = 'bold 20px Arial'; ctx.fillText('ドッグサロン ズイ', 40, 32);
-        ctx.fillStyle = '#f39c12'; ctx.beginPath(); ctx.arc(128, 190, 65, 0, Math.PI * 2); ctx.fill();
-      } else if (type === 'concert') {
-        ctx.fillStyle = '#111'; ctx.fillRect(0, 0, 256, 384);
-        if (options.ghost) {
-          ctx.fillStyle = '#eee'; ctx.beginPath(); ctx.arc(128, 175, 60, 0, Math.PI * 2); ctx.fill();
-          ctx.fillStyle = '#000';
-          ctx.beginPath(); ctx.arc(100, 165, 18, 0, Math.PI * 2); ctx.fill();
-          ctx.beginPath(); ctx.arc(156, 165, 18, 0, Math.PI * 2); ctx.fill();
-        } else {
-          ctx.fillStyle = '#8e44ad'; ctx.font = 'bold 22px Arial'; ctx.fillText('2026 CONCERT', 40, 100);
-        }
-      } else if (type === 'makeup') {
-        ctx.fillStyle = '#f5eep6'; ctx.fillRect(0, 0, 256, 384);
-        ctx.fillStyle = '#8e44ad'; ctx.font = 'bold 22px Arial'; ctx.fillText('MAKEUP ART', 55, 60);
-      } else if (type === 'movefes') {
-        ctx.fillStyle = '#1b2631'; ctx.fillRect(0, 0, 256, 384);
-        ctx.fillStyle = '#e74c3c'; ctx.font = 'bold 26px Arial'; ctx.fillText('映画フェス', 65, 75);
-      } else if (type === 'camera') {
-        ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, 256, 384);
-        ctx.lineWidth = 8; ctx.strokeStyle = '#000'; ctx.strokeRect(10, 10, 236, 364);
-        ctx.fillStyle = '#000'; ctx.fillRect(75, 90, 110, 60);
-        const eyeX = options.eyeX || 75;
-        ctx.fillStyle = '#e74c3c'; ctx.beginPath(); ctx.arc(eyeX, 120, 10, 0, Math.PI * 2); ctx.fill();
-        ctx.fillStyle = '#000'; ctx.font = 'bold 20px Arial'; ctx.fillText('監視カメラ作動中', 40, 275);
+
+        // Footer Banner
+        ctx.fillStyle = '#1d6fa5'; ctx.fillRect(0, 2400, 2048, 672);
+        ctx.fillStyle = '#f1c40f'; ctx.font = 'bold 160px sans-serif'; ctx.textAlign = 'center';
+        ctx.fillText('08 / 08  GRAND OPEN', 1024, 2800);
+      } 
+      else if (type === 'store') {
+        ctx.fillStyle = '#fffdf0'; ctx.fillRect(0, 0, 2048, 3072);
+        
+        ctx.fillStyle = '#c0392b'; ctx.font = 'bold 180px sans-serif'; ctx.textAlign = 'left';
+        ctx.fillText('商店街ポスター', 120, 300);
+        
+        ctx.fillStyle = '#e67e22'; ctx.beginPath(); ctx.arc(1024, 1200, 420, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#ffffff'; ctx.font = 'bold 100px sans-serif'; ctx.textAlign = 'center';
+        ctx.fillText('招き猫', 1024, 1230);
+
+        ctx.fillStyle = '#27ae60'; ctx.fillRect(120, 1800, 1808, 200);
+        ctx.fillStyle = '#ffffff'; ctx.font = 'bold 110px sans-serif';
+        ctx.fillText('アルバイト・パート大募集！', 1024, 1940);
+
+        ctx.fillStyle = '#7f8c8d'; ctx.fillRect(120, 2100, 1808, 800);
+        ctx.fillStyle = '#ffffff'; ctx.font = '60px sans-serif'; ctx.textAlign = 'left';
+        ctx.fillText('・時給: 1,200円〜 (昇給あり)', 200, 2300);
+        ctx.fillText('・時間: 9:00〜22:00 (シフト制)', 200, 2450);
+        ctx.fillText('・未経験者歓迎！交通費支給', 200, 2600);
       }
-      return new THREE.CanvasTexture(canvas);
+      else if (type === 'dog') {
+        ctx.fillStyle = '#f4fbf7'; ctx.fillRect(0, 0, 2048, 3072);
+        ctx.fillStyle = '#27ae60'; ctx.fillRect(0, 0, 2048, 450);
+        ctx.fillStyle = '#ffffff'; ctx.font = 'bold 150px sans-serif'; ctx.textAlign = 'center';
+        ctx.fillText('ドッグサロン ズイ', 1024, 280);
+
+        ctx.fillStyle = '#f39c12'; ctx.beginPath(); ctx.arc(1024, 1350, 480, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#d35400'; ctx.beginPath(); ctx.arc(820, 1100, 120, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(1228, 1100, 120, 0, Math.PI * 2); ctx.fill();
+
+        ctx.fillStyle = '#2c3e50'; ctx.font = 'bold 90px sans-serif';
+        ctx.fillText('愛犬のトリミング＆スキンケア', 1024, 2150);
+        ctx.fillText('TEL: 0120-888-XXX', 1024, 2350);
+
+        ctx.fillStyle = '#27ae60'; ctx.fillRect(0, 2672, 2048, 400);
+      }
+      else if (type === 'concert') {
+        ctx.fillStyle = '#0a0a10'; ctx.fillRect(0, 0, 2048, 3072);
+        
+        if (options.ghost) {
+          // Skeletal Ghost Anomaly
+          ctx.fillStyle = '#e0e0e0'; ctx.beginPath(); ctx.arc(1024, 1350, 450, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = '#050505';
+          ctx.beginPath(); ctx.arc(820, 1250, 130, 0, Math.PI * 2); ctx.fill();
+          ctx.beginPath(); ctx.arc(1228, 1250, 130, 0, Math.PI * 2); ctx.fill();
+          ctx.beginPath(); ctx.arc(1024, 1580, 160, 0, Math.PI * 2); ctx.fill();
+
+          ctx.fillStyle = '#8e44ad'; ctx.font = 'bold 160px sans-serif'; ctx.textAlign = 'center';
+          ctx.fillText('2026 CONCERT', 1024, 500);
+        } else {
+          ctx.fillStyle = '#8e44ad'; ctx.font = 'bold 170px sans-serif'; ctx.textAlign = 'center';
+          ctx.fillText('PEOPLE LIVE TOUR', 1024, 600);
+          ctx.fillStyle = '#ecf0f1'; ctx.font = 'bold 110px sans-serif';
+          ctx.fillText('2026 WORLD STAGE', 1024, 850);
+
+          ctx.fillStyle = '#34495e'; ctx.fillRect(300, 1100, 1448, 1100);
+          ctx.fillStyle = '#16a085'; ctx.font = 'bold 90px sans-serif';
+          ctx.fillText('SPECIAL GUEST: THE EXIT', 1024, 1700);
+
+          ctx.fillStyle = '#bdc3c7'; ctx.font = '65px sans-serif';
+          ctx.fillText('TOKYO DOME / OSAKA CASTLE HALL', 1024, 2500);
+          ctx.fillText('TICKETS ON SALE NOW', 1024, 2680);
+        }
+      }
+      else if (type === 'makeup') {
+        ctx.fillStyle = '#faf0f5'; ctx.fillRect(0, 0, 2048, 3072);
+        ctx.fillStyle = '#8e44ad'; ctx.font = 'bold 170px sans-serif'; ctx.textAlign = 'center';
+        ctx.fillText('MAKEUP ART', 1024, 450);
+
+        ctx.fillStyle = '#e8daef'; ctx.fillRect(200, 650, 1648, 1700);
+        ctx.fillStyle = '#a569bd'; ctx.font = 'bold 110px sans-serif';
+        ctx.fillText('ココ文字カラ', 1024, 1500);
+
+        ctx.fillStyle = '#6c3483'; ctx.font = '80px sans-serif';
+        ctx.fillText('NEW COSMETICS COLLECTION 2026', 1024, 2600);
+      }
+      else if (type === 'movefes') {
+        ctx.fillStyle = '#111722'; ctx.fillRect(0, 0, 2048, 3072);
+        ctx.fillStyle = '#e74c3c'; ctx.font = 'bold 200px sans-serif'; ctx.textAlign = 'center';
+        ctx.fillText('映画フェス', 1024, 550);
+        ctx.fillStyle = '#f39c12'; ctx.font = 'bold 130px sans-serif';
+        ctx.fillText('MOVEFES 2026', 1024, 800);
+
+        ctx.fillStyle = '#2c3e50'; ctx.fillRect(200, 1050, 1648, 1400);
+        ctx.fillStyle = '#ecf0f1'; ctx.font = '75px sans-serif';
+        ctx.fillText('SHORT FILM FESTIVAL IN TOKYO', 1024, 2650);
+      }
+      else if (type === 'camera') {
+        ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, 2048, 3072);
+        ctx.lineWidth = 60; ctx.strokeStyle = '#000000'; ctx.strokeRect(80, 80, 1888, 2912);
+
+        // Camera Body Illustration
+        ctx.fillStyle = '#111'; ctx.fillRect(600, 600, 848, 500);
+        ctx.beginPath(); ctx.arc(600, 850, 250, 0, Math.PI * 2); ctx.fill();
+
+        // Eye Anomaly or Normal Red Lens
+        const eyeX = options.eyeX !== undefined ? options.eyeX : 600;
+        const eyeY = options.eyeY !== undefined ? options.eyeY : 850;
+        ctx.fillStyle = '#e74c3c'; ctx.beginPath(); ctx.arc(eyeX, eyeY, 90, 0, Math.PI * 2); ctx.fill();
+
+        ctx.fillStyle = '#000000'; ctx.font = 'bold 160px sans-serif'; ctx.textAlign = 'center';
+        ctx.fillText('監視カメラ作動中', 1024, 2000);
+        ctx.font = 'bold 90px sans-serif';
+        ctx.fillText('防犯カメラ録画中・警備強化区域', 1024, 2300);
+        ctx.fillStyle = '#c0392b'; ctx.font = '70px sans-serif';
+        ctx.fillText('SECURITY SYSTEM IN OPERATION', 1024, 2550);
+      }
+
+      const texture = new THREE.CanvasTexture(canvas);
+      texture.generateMipmaps = true;
+      texture.minFilter = THREE.LinearMipmapLinearFilter;
+      return texture;
     }
 
     // --- SETUP SCENE ---
@@ -249,11 +360,11 @@
     scene.fog = new THREE.FogExp2(0x0a0a0d, 0.035);
 
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
-    const renderer = new THREE.WebGLRenderer({ antialias: false, powerPreference: 'high-performance' });
+    const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
     renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2.0));
     renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.BasicShadowMap;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     container.appendChild(renderer.domElement);
 
     const TUNNEL_WIDTH = 6;
@@ -310,7 +421,7 @@
       tunnelGroup.add(door);
     });
 
-    // Posters
+    // Posters Setup
     const posterTypes = ['smile', 'store', 'dog', 'concert', 'makeup', 'movefes', 'camera'];
     const posterMeshes = [];
     const posterGroup = new THREE.Group();
@@ -329,9 +440,14 @@
         if (type === 'smile' && anomaly === 1) opts.melting = true;
         if (type === 'concert' && anomaly === 2) opts.ghost = true;
 
-        const mat = new THREE.MeshBasicMaterial({ map: drawPoster(pType, opts) });
+        const posterMat = new THREE.MeshStandardMaterial({
+          map: drawPoster(pType, opts),
+          roughness: 0.2,
+          metalness: 0.1
+        });
+
         const height = isGrowth ? 3.0 : 1.5;
-        const mesh = new THREE.Mesh(new THREE.PlaneGeometry(1.0, height), mat);
+        const mesh = new THREE.Mesh(new THREE.PlaneGeometry(1.0, height), posterMat);
         mesh.position.set(-TUNNEL_WIDTH / 2 + 0.02, 2.0, -6 - idx * 4);
         mesh.rotation.y = Math.PI / 2;
 
