@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>The Exit 8 - Accurate High-Graphics Edition</title>
+  <title>The Exit 8 - Ultra HD Graphics Edition</title>
   <style>
     * {
       box-sizing: border-box;
@@ -27,8 +27,8 @@
       position: absolute;
       bottom: 30px;
       right: 30px;
-      background: rgba(0, 0, 0, 0.75);
-      border: 1px solid #333;
+      background: rgba(0, 0, 0, 0.85);
+      border: 1px solid #444;
       padding: 15px 25px;
       border-radius: 6px;
       color: #fff;
@@ -70,7 +70,7 @@
       left: 50%;
       width: 4px;
       height: 4px;
-      background: rgba(255, 255, 255, 0.8);
+      background: rgba(255, 255, 255, 0.9);
       border-radius: 50%;
       transform: translate(-50%, -50%);
       pointer-events: none;
@@ -82,7 +82,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(10, 10, 10, 0.95);
+      background: rgba(5, 5, 5, 0.95);
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -96,7 +96,7 @@
       margin-bottom: 10px;
       letter-spacing: 4px;
       color: #f39c12;
-      text-shadow: 0 0 10px rgba(243, 156, 18, 0.4);
+      text-shadow: 0 0 15px rgba(243, 156, 18, 0.5);
     }
     #start-screen p {
       font-size: 16px;
@@ -106,7 +106,7 @@
       position: absolute;
       bottom: 20px;
       left: 20px;
-      background: rgba(0, 0, 0, 0.6);
+      background: rgba(0, 0, 0, 0.7);
       padding: 8px 16px;
       border-radius: 20px;
       color: #ccc;
@@ -134,27 +134,28 @@
     <div id="crosshair"></div>
 
     <div id="instructions">
-      W / S: Gehen | Shift: SPRINTEN | Maus: Umsehen
+      W / S: Walk | Shift: SPRINT | Mouse: Look Around
     </div>
 
     <div id="start-screen">
       <h1>8番出口 (EXIT 8)</h1>
-      <p>Klicke zum Starten</p>
+      <p>Click anywhere to start playing</p>
     </div>
   </div>
 
   <script>
-    // --- TEXTURE GENERATORS ---
+    // --- ADVANCED PROCEDURAL TEXTURE GENERATORS ---
     function createTileTexture() {
       const canvas = document.createElement('canvas');
       canvas.width = 1024; canvas.height = 1024;
       const ctx = canvas.getContext('2d');
       
-      ctx.fillStyle = '#e2e0d8';
+      ctx.fillStyle = '#dbd9cf';
       ctx.fillRect(0, 0, 1024, 1024);
 
-      ctx.strokeStyle = '#9e9c94';
-      ctx.lineWidth = 3;
+      // Tile Borders
+      ctx.strokeStyle = '#8c8a82';
+      ctx.lineWidth = 4;
 
       const tileSize = 64;
       for (let x = 0; x <= 1024; x += tileSize) {
@@ -175,10 +176,10 @@
       canvas.width = 1024; canvas.height = 1024;
       const ctx = canvas.getContext('2d');
 
-      ctx.fillStyle = '#bcbebf';
+      ctx.fillStyle = '#b0b2b5';
       ctx.fillRect(0, 0, 1024, 1024);
 
-      ctx.strokeStyle = '#717477';
+      ctx.strokeStyle = '#5a5d60';
       ctx.lineWidth = 4;
 
       for (let x = 0; x <= 1024; x += 128) {
@@ -189,7 +190,7 @@
       }
 
       // Yellow Braille Line
-      ctx.fillStyle = '#e67e22';
+      ctx.fillStyle = '#d35400';
       ctx.fillRect(448, 0, 128, 1024);
       ctx.fillStyle = '#f39c12';
       for (let y = 16; y < 1024; y += 32) {
@@ -216,19 +217,16 @@
         ctx.fillStyle = '#fff'; ctx.font = 'bold 36px Arial';
         ctx.fillText('ニカッと歯科医院', 40, 110);
 
-        // Cartoon Face
         ctx.fillStyle = '#ffdbac'; ctx.beginPath(); ctx.arc(256, 420, 140, 0, Math.PI * 2); ctx.fill();
         ctx.fillStyle = '#4a235a'; ctx.beginPath(); ctx.arc(256, 320, 145, Math.PI, Math.PI * 2); ctx.fill();
 
         if (options.melting) {
-          // Deformed horror face anomaly
           ctx.fillStyle = '#800000';
           ctx.beginPath(); ctx.arc(210, 420, 35, 0, Math.PI * 2); ctx.fill();
           ctx.beginPath(); ctx.arc(300, 450, 45, 0, Math.PI * 2); ctx.fill();
           ctx.fillStyle = '#000';
           ctx.beginPath(); ctx.arc(256, 510, 50, 0, Math.PI); ctx.fill();
         } else {
-          // Normal smile
           ctx.fillStyle = '#333';
           ctx.beginPath(); ctx.arc(200, 400, 15, 0, Math.PI * 2); ctx.fill();
           ctx.beginPath(); ctx.arc(312, 400, 15, 0, Math.PI * 2); ctx.fill();
@@ -243,7 +241,6 @@
       else if (type === 'store') {
         ctx.fillStyle = '#fcf3cf'; ctx.fillRect(0, 0, 512, 768);
         ctx.fillStyle = '#c0392b'; ctx.font = 'bold 48px Arial'; ctx.fillText('商店ポスター', 30, 80);
-        // Cat Drawing
         ctx.fillStyle = '#e67e22'; ctx.beginPath(); ctx.arc(256, 300, 110, 0, Math.PI * 2); ctx.fill();
         ctx.fillStyle = '#d35400'; ctx.font = 'bold 32px Arial'; ctx.fillText('アルバイト・パート', 100, 520);
         ctx.fillStyle = '#7f8c8d'; ctx.fillRect(40, 560, 432, 160);
@@ -252,14 +249,12 @@
         ctx.fillStyle = '#e8f8f5'; ctx.fillRect(0, 0, 512, 768);
         ctx.fillStyle = '#27ae60'; ctx.fillRect(0, 0, 512, 100);
         ctx.fillStyle = '#fff'; ctx.font = 'bold 40px Arial'; ctx.fillText('ドッグサロン ズイ', 80, 65);
-        // Dog
         ctx.fillStyle = '#f39c12'; ctx.beginPath(); ctx.arc(256, 380, 130, 0, Math.PI * 2); ctx.fill();
         ctx.fillStyle = '#27ae60'; ctx.fillRect(0, 660, 512, 108);
       }
       else if (type === 'concert') {
         ctx.fillStyle = '#111'; ctx.fillRect(0, 0, 512, 768);
         if (options.ghost) {
-          // Skeletal Horror Face Anomaly
           ctx.fillStyle = '#eee'; ctx.beginPath(); ctx.arc(256, 350, 120, 0, Math.PI * 2); ctx.fill();
           ctx.fillStyle = '#000';
           ctx.beginPath(); ctx.arc(200, 330, 35, 0, Math.PI * 2); ctx.fill();
@@ -285,11 +280,9 @@
       else if (type === 'camera') {
         ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, 512, 768);
         ctx.lineWidth = 16; ctx.strokeStyle = '#000'; ctx.strokeRect(20, 20, 472, 728);
-        // Security Camera Drawing
         ctx.fillStyle = '#000'; ctx.fillRect(150, 180, 220, 120);
         ctx.beginPath(); ctx.arc(150, 240, 60, 0, Math.PI * 2); ctx.fill();
 
-        // Eye tracking logic center
         const eyeX = options.eyeX || 150;
         const eyeY = options.eyeY || 240;
         ctx.fillStyle = '#e74c3c'; ctx.beginPath(); ctx.arc(eyeX, eyeY, 20, 0, Math.PI * 2); ctx.fill();
@@ -307,13 +300,15 @@
     const exitText = document.getElementById('exit-text');
 
     const scene = new THREE.Scene();
-    scene.fog = new THREE.FogExp2(0x0a0a0a, 0.025);
+    scene.fog = new THREE.FogExp2(0x0a0a0d, 0.02);
 
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
     const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.0;
     container.appendChild(renderer.domElement);
 
     // Tunnel Dimensions
@@ -324,17 +319,17 @@
     const tunnelGroup = new THREE.Group();
     scene.add(tunnelGroup);
 
-    // Wall & Floor Materials
+    // Materials
     const wallTex = createTileTexture(); wallTex.repeat.set(12, 2);
     const floorTex = createFloorTexture(); floorTex.repeat.set(2, 24);
 
-    const wallMat = new THREE.MeshStandardMaterial({ map: wallTex, roughness: 0.2, metalness: 0.1 });
-    const floorMat = new THREE.MeshStandardMaterial({ map: floorTex, roughness: 0.3, metalness: 0.1 });
-    const ceilingMat = new THREE.MeshStandardMaterial({ color: 0xd5d8dc, roughness: 0.8 });
+    const wallMat = new THREE.MeshStandardMaterial({ map: wallTex, roughness: 0.25, metalness: 0.1 });
+    const floorMat = new THREE.MeshStandardMaterial({ map: floorTex, roughness: 0.35, metalness: 0.1 });
+    const ceilingMat = new THREE.MeshStandardMaterial({ color: 0xc8cbd0, roughness: 0.8 });
 
-    // Build Tunnel
+    // Tunnel Geometries
     const floor = new THREE.Mesh(new THREE.PlaneGeometry(TUNNEL_WIDTH, TUNNEL_LENGTH), floorMat);
-    floor.rotation.x = -Math.PI / 2; floor.position.z = -TUNNEL_LENGTH / 2;
+    floor.rotation.x = -Math.PI / 2; floor.position.z = -TUNNEL_LENGTH / 2; floor.receiveShadow = true;
     tunnelGroup.add(floor);
 
     const ceiling = new THREE.Mesh(new THREE.PlaneGeometry(TUNNEL_WIDTH, TUNNEL_LENGTH), ceilingMat);
@@ -343,30 +338,91 @@
 
     const leftWall = new THREE.Mesh(new THREE.PlaneGeometry(TUNNEL_LENGTH, TUNNEL_HEIGHT), wallMat);
     leftWall.rotation.y = Math.PI / 2; leftWall.position.x = -TUNNEL_WIDTH / 2; leftWall.position.y = TUNNEL_HEIGHT / 2; leftWall.position.z = -TUNNEL_LENGTH / 2;
+    leftWall.receiveShadow = true;
     tunnelGroup.add(leftWall);
 
     const rightWall = new THREE.Mesh(new THREE.PlaneGeometry(TUNNEL_LENGTH, TUNNEL_HEIGHT), wallMat);
     rightWall.rotation.y = -Math.PI / 2; rightWall.position.x = TUNNEL_WIDTH / 2; rightWall.position.y = TUNNEL_HEIGHT / 2; rightWall.position.z = -TUNNEL_LENGTH / 2;
+    rightWall.receiveShadow = true;
     tunnelGroup.add(rightWall);
 
-    // Ceiling Lights
+    // --- CEILING LIGHTS ---
     const lights = [];
     for (let z = -4; z > -TUNNEL_LENGTH; z -= 6) {
       const lMesh = new THREE.Mesh(
-        new THREE.BoxGeometry(1.4, 0.1, 0.5),
+        new THREE.BoxGeometry(1.6, 0.08, 0.5),
         new THREE.MeshBasicMaterial({ color: 0xffffff })
       );
-      lMesh.position.set(0, TUNNEL_HEIGHT - 0.05, z);
+      lMesh.position.set(0, TUNNEL_HEIGHT - 0.04, z);
       tunnelGroup.add(lMesh);
 
-      const pLight = new THREE.PointLight(0xfff8e7, 1.2, 14);
+      const pLight = new THREE.PointLight(0xfff8e7, 1.3, 14);
       pLight.position.set(0, TUNNEL_HEIGHT - 0.2, z);
       pLight.castShadow = true;
+      pLight.shadow.bias = -0.002;
       tunnelGroup.add(pLight);
       lights.push(pLight);
     }
 
-    // Exit 8 Sign
+    // --- CEILING VENTS (LÜFTUNGSSCHÄCHTE) ---
+    const ventMat = new THREE.MeshStandardMaterial({ color: 0x333333, roughness: 0.6, metalness: 0.8 });
+    for (let z = -7; z > -TUNNEL_LENGTH; z -= 10) {
+      const vent = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.05, 1.2), ventMat);
+      vent.position.set(-1.8, TUNNEL_HEIGHT - 0.02, z);
+      tunnelGroup.add(vent);
+    }
+
+    // --- 2 DOORS ON RIGHT WALL (ZWEI METALLTÜREN) ---
+    const doorMat = new THREE.MeshStandardMaterial({ color: 0x4a5568, roughness: 0.4, metalness: 0.6 });
+    const handleMat = new THREE.MeshStandardMaterial({ color: 0xd69e2e, roughness: 0.2, metalness: 0.9 });
+
+    [ -12, -24 ].forEach(zPos => {
+      const doorGroup = new THREE.Group();
+      const doorFrame = new THREE.Mesh(new THREE.BoxGeometry(0.1, 2.5, 1.3), new THREE.MeshStandardMaterial({ color: 0x2d3748 }));
+      const doorPanel = new THREE.Mesh(new THREE.BoxGeometry(0.06, 2.4, 1.2), doorMat);
+      const handle = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.25), handleMat);
+      
+      handle.rotation.z = Math.PI / 2;
+      handle.position.set(-0.05, 0, 0.4);
+      doorPanel.add(handle);
+
+      doorGroup.position.set(TUNNEL_WIDTH / 2 - 0.04, 1.25, zPos);
+      doorGroup.add(doorFrame);
+      doorGroup.add(doorPanel);
+      tunnelGroup.add(doorGroup);
+    });
+
+    // --- SECURITY CAMERAS ON OPPOSITE WALL (RIGHT SIDE) ---
+    const camBodyMat = new THREE.MeshStandardMaterial({ color: 0x1a202c, roughness: 0.3, metalness: 0.7 });
+    const camLensMat = new THREE.MeshStandardMaterial({ color: 0x000000, roughness: 0.1 });
+    const camRedMat = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+
+    [ -8, -18, -28 ].forEach(zPos => {
+      const cameraGroup = new THREE.Group();
+      
+      const base = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.1), camBodyMat);
+      base.rotation.z = Math.PI / 2;
+      
+      const body = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.15, 0.35), camBodyMat);
+      body.position.set(-0.1, -0.1, -0.1);
+      
+      const lens = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.08), camLensMat);
+      lens.rotation.x = Math.PI / 2;
+      lens.position.set(0, 0, -0.18);
+      body.add(lens);
+
+      const redDot = new THREE.Mesh(new THREE.SphereGeometry(0.015, 8, 8), camRedMat);
+      redDot.position.set(0.07, 0.05, -0.16);
+      body.add(redDot);
+
+      cameraGroup.add(base);
+      cameraGroup.add(body);
+      cameraGroup.position.set(TUNNEL_WIDTH / 2 - 0.1, TUNNEL_HEIGHT - 0.6, zPos);
+      cameraGroup.rotation.y = -Math.PI / 4;
+      tunnelGroup.add(cameraGroup);
+    });
+
+    // --- EXIT 8 SIGN ---
     const signCanvas = document.createElement('canvas'); signCanvas.width = 512; signCanvas.height = 128;
     const sCtx = signCanvas.getContext('2d');
     sCtx.fillStyle = '#f1c40f'; sCtx.fillRect(0, 0, 512, 128);
@@ -381,22 +437,21 @@
     exitSign.position.set(0, TUNNEL_HEIGHT - 0.6, -10);
     tunnelGroup.add(exitSign);
 
-    // --- POSTERS SETUP (EXACT 7 PLAKATS) ---
+    // --- POSTERS SETUP (7 PLAKATS) ---
     const posterTypes = ['smile', 'store', 'dog', 'concert', 'makeup', 'movefes', 'camera'];
     const posterMeshes = [];
 
     const posterGroup = new THREE.Group();
     tunnelGroup.add(posterGroup);
 
-    function createPosters(anomaly = 0) {
-      // Clear old posters
+    function createPosters(anomaly = -1) {
       while(posterGroup.children.length > 0) { 
         posterGroup.remove(posterGroup.children[0]); 
       }
       posterMeshes.length = 0;
 
-      const isTakeover = (anomaly === 3); // The Makeup Takeover
-      const isGrowth = (anomaly === 4);   // The Growth Spurt
+      const isTakeover = (anomaly === 3);
+      const isGrowth = (anomaly === 4);
 
       posterTypes.forEach((type, idx) => {
         let pType = isTakeover ? 'makeup' : type;
@@ -417,24 +472,57 @@
       });
     }
 
-    // --- MAN IN SUIT SETUP ---
+    // --- HIGH-GRAPHICS DETAILED MAN MODEL ---
     const manGroup = new THREE.Group();
-    const suitMat = new THREE.MeshStandardMaterial({ color: 0x151515, roughness: 0.6 });
-    const skinMat = new THREE.MeshStandardMaterial({ color: 0xffdbac, roughness: 0.8 });
 
-    const head = new THREE.Mesh(new THREE.SphereGeometry(0.18, 16, 16), skinMat);
-    head.position.y = 1.68; manGroup.add(head);
+    const suitMat = new THREE.MeshStandardMaterial({ color: 0x1c2024, roughness: 0.5 });
+    const shirtMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.3 });
+    const tieMat = new THREE.MeshStandardMaterial({ color: 0x8b0000, roughness: 0.4 });
+    const skinMat = new THREE.MeshStandardMaterial({ color: 0xffdbac, roughness: 0.7 });
+    const hairMat = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.9 });
+    const shoeMat = new THREE.MeshStandardMaterial({ color: 0x050505, roughness: 0.2 });
 
-    const body = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.2, 0.75), suitMat);
-    body.position.y = 1.15; manGroup.add(body);
+    // Head & Hair
+    const head = new THREE.Mesh(new THREE.SphereGeometry(0.18, 24, 24), skinMat);
+    head.position.y = 1.68;
+    head.scale.set(0.9, 1.1, 0.95);
+    manGroup.add(head);
 
-    const legGeo = new THREE.CylinderGeometry(0.08, 0.07, 0.8);
-    const leftLeg = new THREE.Mesh(legGeo, suitMat); leftLeg.position.set(-0.12, 0.4, 0);
-    const rightLeg = new THREE.Mesh(legGeo, suitMat); rightLeg.position.set(0.12, 0.4, 0);
+    const hair = new THREE.Mesh(new THREE.SphereGeometry(0.185, 16, 16), hairMat);
+    hair.position.set(0, 1.73, -0.01);
+    hair.scale.set(0.92, 0.7, 0.96);
+    manGroup.add(hair);
+
+    // Torso (Suit Jacket + Shirt + Tie)
+    const torso = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.20, 0.75, 16), suitMat);
+    torso.position.y = 1.15; torso.castShadow = true; manGroup.add(torso);
+
+    const shirtInner = new THREE.Mesh(new THREE.PlaneGeometry(0.14, 0.4), shirtMat);
+    shirtInner.position.set(0, 1.25, 0.19); manGroup.add(shirtInner);
+
+    const tie = new THREE.Mesh(new THREE.PlaneGeometry(0.04, 0.35), tieMat);
+    tie.position.set(0, 1.22, 0.20); manGroup.add(tie);
+
+    // Arms
+    const armGeo = new THREE.CylinderGeometry(0.065, 0.055, 0.65);
+    const leftArm = new THREE.Mesh(armGeo, suitMat); leftArm.position.set(-0.30, 1.15, 0); manGroup.add(leftArm);
+    const rightArm = new THREE.Mesh(armGeo, suitMat); rightArm.position.set(0.30, 1.15, 0); manGroup.add(rightArm);
+
+    // Legs & Shoes
+    const legGeo = new THREE.CylinderGeometry(0.085, 0.07, 0.85);
+    const leftLeg = new THREE.Mesh(legGeo, suitMat); leftLeg.position.set(-0.12, 0.425, 0); leftLeg.castShadow = true;
+    const rightLeg = new THREE.Mesh(legGeo, suitMat); rightLeg.position.set(0.12, 0.425, 0); rightLeg.castShadow = true;
     manGroup.add(leftLeg); manGroup.add(rightLeg);
 
-    const briefcase = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.28, 0.38), new THREE.MeshStandardMaterial({ color: 0x050505 }));
-    briefcase.position.set(0.32, 0.8, 0); manGroup.add(briefcase);
+    const shoeGeo = new THREE.BoxGeometry(0.1, 0.08, 0.22);
+    const leftShoe = new THREE.Mesh(shoeGeo, shoeMat); leftShoe.position.set(-0.12, 0.04, 0.04);
+    const rightShoe = new THREE.Mesh(shoeGeo, shoeMat); rightShoe.position.set(0.12, 0.04, 0.04);
+    manGroup.add(leftShoe); manGroup.add(rightShoe);
+
+    // Briefcase
+    const briefcase = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.28, 0.38), new THREE.MeshStandardMaterial({ color: 0x080808, roughness: 0.3 }));
+    briefcase.position.set(-0.36, 0.7, 0); briefcase.castShadow = true;
+    manGroup.add(briefcase);
 
     scene.add(manGroup);
 
@@ -443,18 +531,10 @@
     }
     resetMan();
 
-    // --- GAME STATE ---
+    // --- GAME STATE & ANOMALIES ---
     let currentExit = 0;
     let anomalyPresent = false;
     let anomalyType = 0; 
-    // Anomalies:
-    // 0 = Red Lights (ONLY NON-POSTER ANOMALY)
-    // 1 = Melting Face
-    // 2 = Ghost Face
-    // 3 = Makeup Takeover
-    // 4 = Growth Spurt
-    // 5 = Tracking Eyes
-    // 6 = Stalker Sign
 
     function triggerNextSection(turnedBack) {
       if (turnedBack) {
@@ -478,26 +558,22 @@
         exitText.innerText = `EXIT 0`;
       }
 
-      // Generate Anomaly
       anomalyPresent = Math.random() < 0.5;
       anomalyType = anomalyPresent ? Math.floor(Math.random() * 7) : -1;
 
-      // Apply Light Color
       lights.forEach(l => {
         l.color.setHex((anomalyPresent && anomalyType === 0) ? 0xff0000 : 0xfff8e7);
       });
 
-      // Build Posters based on anomaly
       createPosters(anomalyPresent ? anomalyType : -1);
 
-      // Reset positions
       camera.position.set(0, 1.7, -2);
       resetMan();
     }
 
     createPosters(-1);
 
-    // --- CONTROLS & LOOP ---
+    // --- CONTROLS & RENDER LOOP ---
     camera.position.set(0, 1.7, -2);
 
     let moveForward = false, moveBackward = false, isSprinting = false;
@@ -541,31 +617,36 @@
       requestAnimationFrame(animate);
       const delta = clock.getDelta();
 
-      // Camera orientation
       camera.rotation.order = 'YXZ';
       camera.rotation.y = yaw;
       camera.rotation.x = pitch;
 
-      // Movement
       const speed = (isSprinting ? 5.5 : 3.0) * delta;
       if (moveForward) camera.position.z -= speed;
       if (moveBackward) camera.position.z += speed;
 
-      // Man Walking
-      manGroup.position.z += 1.8 * delta;
+      // Realistic Walking Animation for the Man
+      manGroup.position.z += 1.7 * delta;
       const legTime = clock.getElapsedTime() * 7;
-      leftLeg.rotation.x = Math.sin(legTime) * 0.5;
-      rightLeg.rotation.x = -Math.sin(legTime) * 0.5;
+      
+      leftLeg.rotation.x = Math.sin(legTime) * 0.45;
+      leftShoe.rotation.x = Math.sin(legTime) * 0.45;
+      leftShoe.position.z = 0.04 + Math.sin(legTime) * 0.15;
 
-      // Stalker Sign Anomaly (#6)
+      rightLeg.rotation.x = -Math.sin(legTime) * 0.45;
+      rightShoe.rotation.x = -Math.sin(legTime) * 0.45;
+      rightShoe.position.z = 0.04 - Math.sin(legTime) * 0.15;
+
+      leftArm.rotation.x = -Math.sin(legTime) * 0.35;
+      rightArm.rotation.x = Math.sin(legTime) * 0.35;
+
+      // Stalker Sign Anomaly
       if (anomalyPresent && anomalyType === 6) {
         const lastPoster = posterMeshes[6];
-        if (lastPoster) {
-          lastPoster.mesh.position.z = camera.position.z - 3;
-        }
+        if (lastPoster) lastPoster.mesh.position.z = camera.position.z - 3;
       }
 
-      // Tracking Eyes Anomaly (#5)
+      // Tracking Eyes Anomaly
       if (anomalyPresent && anomalyType === 5) {
         const camPoster = posterMeshes[6];
         if (camPoster) {
@@ -574,7 +655,7 @@
         }
       }
 
-      // Loop Boundaries
+      // Loop Triggers
       if (camera.position.z < -34) {
         triggerNextSection(false);
       } else if (camera.position.z > 1) {
