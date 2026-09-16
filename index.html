@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>The Exit 8 - HD Ceiling & Sign Edition</title>
+  <title>The Exit 8 - Wall Vents Edition</title>
   <style>
     * {
       box-sizing: border-box;
@@ -199,14 +199,11 @@
       return texture;
     }
 
-    // HD CEILING PANELS TEXTURE (Horizontal Slats like in image)
     function createCeilingTexture() {
       const canvas = document.createElement('canvas');
       canvas.width = 512; canvas.height = 1024;
       const ctx = canvas.getContext('2d');
       ctx.fillStyle = '#9b9e9b'; ctx.fillRect(0, 0, 512, 1024);
-      
-      // Horizontal Slats
       for (let y = 0; y < 1024; y += 32) {
         ctx.fillStyle = '#b5b8b4';
         ctx.fillRect(0, y, 512, 28);
@@ -218,7 +215,41 @@
       return texture;
     }
 
-    // YELLOW EXIT SIGN TEXTURE (Matches user image)
+    // HD WALL VENT TEXTURE (Grid/Slats with metallic frame)
+    function createVentTexture() {
+      const canvas = document.createElement('canvas');
+      canvas.width = 512; canvas.height = 512;
+      const ctx = canvas.getContext('2d');
+
+      // Outer Frame
+      ctx.fillStyle = '#4a4d50'; ctx.fillRect(0, 0, 512, 512);
+      ctx.fillStyle = '#2b2c2e'; ctx.fillRect(30, 30, 452, 452);
+
+      // Dark Hole Interior
+      ctx.fillStyle = '#08080a'; ctx.fillRect(45, 45, 422, 422);
+
+      // Metallic Horizontal Slats / Louvers
+      for (let y = 60; y < 450; y += 24) {
+        ctx.fillStyle = '#7a7e85';
+        ctx.fillRect(45, y, 422, 10);
+        ctx.fillStyle = '#3a3c40';
+        ctx.fillRect(45, y + 10, 422, 6);
+      }
+
+      // Corner Screws
+      ctx.fillStyle = '#8a8e95';
+      [20, 492].forEach(x => {
+        [20, 492].forEach(y => {
+          ctx.beginPath();
+          ctx.arc(x, y, 6, 0, Math.PI * 2);
+          ctx.fill();
+        });
+      });
+
+      const texture = new THREE.CanvasTexture(canvas);
+      return texture;
+    }
+
     function createExitSignTexture() {
       const canvas = document.createElement('canvas');
       canvas.width = 1024; canvas.height = 256;
@@ -228,26 +259,15 @@
       ctx.strokeStyle = '#111111'; ctx.lineWidth = 8; ctx.strokeRect(4, 4, 1016, 248);
 
       ctx.fillStyle = '#111111'; ctx.textAlign = 'center';
-      
-      // Arrow Up
-      ctx.font = 'bold 110px sans-serif';
-      ctx.fillText('↑', 300, 160);
-
-      // Japanese Exit Text
-      ctx.font = 'bold 100px "Hiragino Sans", "Meiryo", sans-serif';
-      ctx.fillText('出口', 520, 140);
-      ctx.font = 'bold 36px sans-serif';
-      ctx.fillText('Exit', 520, 195);
-
-      // Number 8
-      ctx.font = 'bold 130px sans-serif';
-      ctx.fillText('8', 720, 170);
+      ctx.font = 'bold 110px sans-serif'; ctx.fillText('↑', 300, 160);
+      ctx.font = 'bold 100px "Hiragino Sans", "Meiryo", sans-serif'; ctx.fillText('出口', 520, 140);
+      ctx.font = 'bold 36px sans-serif'; ctx.fillText('Exit', 520, 195);
+      ctx.font = 'bold 130px sans-serif'; ctx.fillText('8', 720, 170);
 
       const texture = new THREE.CanvasTexture(canvas);
       return texture;
     }
 
-    // HD DOOR TEXTURE
     function createDoorTexture() {
       const canvas = document.createElement('canvas');
       canvas.width = 1024; canvas.height = 2048;
@@ -384,19 +404,28 @@
     rightWall.rotation.y = -Math.PI / 2; rightWall.position.x = TUNNEL_WIDTH / 2; rightWall.position.y = TUNNEL_HEIGHT / 2; rightWall.position.z = -TUNNEL_LENGTH / 2;
     tunnelGroup.add(rightWall);
 
-    // --- EXIT 8 OVERHEAD SIGN (From Image) ---
+    // --- WALL VENTS (High Up on Right Wall like Screenshot) ---
+    const ventMat = new THREE.MeshStandardMaterial({ map: createVentTexture(), roughness: 0.4, metalness: 0.3 });
+    const ventGeo = new THREE.PlaneGeometry(0.9, 0.9);
+
+    [-6, -18, -30].forEach((zPos) => {
+      const ventMesh = new THREE.Mesh(ventGeo, ventMat);
+      ventMesh.rotation.y = -Math.PI / 2;
+      ventMesh.position.set(TUNNEL_WIDTH / 2 - 0.02, TUNNEL_HEIGHT - 0.75, zPos);
+      tunnelGroup.add(ventMesh);
+    });
+
+    // --- EXIT 8 OVERHEAD SIGN ---
     const exitSignMat = new THREE.MeshBasicMaterial({ map: createExitSignTexture() });
     const exitSignMesh = new THREE.Mesh(new THREE.PlaneGeometry(4.0, 0.9), exitSignMat);
     exitSignMesh.position.set(0, TUNNEL_HEIGHT - 0.75, -10);
     tunnelGroup.add(exitSignMesh);
 
-    // Back side of sign
     const exitSignMeshBack = exitSignMesh.clone();
     exitSignMeshBack.rotation.y = Math.PI;
     exitSignMeshBack.position.z = -10.01;
     tunnelGroup.add(exitSignMeshBack);
 
-    // Sign Frame / Border
     const signBorderMat = new THREE.MeshStandardMaterial({ color: 0x222222, metalness: 0.8 });
     const signBorder = new THREE.Mesh(new THREE.BoxGeometry(4.1, 0.95, 0.08), signBorderMat);
     signBorder.position.set(0, TUNNEL_HEIGHT - 0.75, -10.005);
@@ -408,18 +437,15 @@
     const lights = [];
 
     for (let z = -4; z > -TUNNEL_LENGTH; z -= 8) {
-      // Light Housing Frame
       const frame = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.05, 3.2), lightFrameMat);
       frame.position.set(0, TUNNEL_HEIGHT - 0.02, z);
       tunnelGroup.add(frame);
 
-      // Glowing Panel
       const bulb = new THREE.Mesh(new THREE.PlaneGeometry(1.4, 3.0), lightBulbMat);
       bulb.rotation.x = Math.PI / 2;
       bulb.position.set(0, TUNNEL_HEIGHT - 0.04, z);
       tunnelGroup.add(bulb);
 
-      // Actual Point Light
       const pLight = new THREE.PointLight(0xfff8e7, 1.4, 14);
       pLight.position.set(0, TUNNEL_HEIGHT - 0.3, z);
       tunnelGroup.add(pLight);
