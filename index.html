@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>The Exit 8 - Ultra HD Graphics Edition</title>
+  <title>The Exit 8 - Performance & WASD Edition</title>
   <style>
     * {
       box-sizing: border-box;
@@ -134,184 +134,128 @@
     <div id="crosshair"></div>
 
     <div id="instructions">
-      W / S: Walk | Shift: SPRINT | Mouse: Look Around
+      W A S D: Bewegen | Shift: SPRINTEN | Maus: Umsehen
     </div>
 
     <div id="start-screen">
       <h1>8番出口 (EXIT 8)</h1>
-      <p>Click anywhere to start playing</p>
+      <p>Klicke zum Starten</p>
     </div>
   </div>
 
   <script>
-    // --- ADVANCED PROCEDURAL TEXTURE GENERATORS ---
+    // --- TEXTURES ---
     function createTileTexture() {
       const canvas = document.createElement('canvas');
-      canvas.width = 1024; canvas.height = 1024;
+      canvas.width = 512; canvas.height = 512;
       const ctx = canvas.getContext('2d');
-      
-      ctx.fillStyle = '#dbd9cf';
-      ctx.fillRect(0, 0, 1024, 1024);
-
-      // Tile Borders
-      ctx.strokeStyle = '#8c8a82';
-      ctx.lineWidth = 4;
-
-      const tileSize = 64;
-      for (let x = 0; x <= 1024; x += tileSize) {
-        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, 1024); ctx.stroke();
+      ctx.fillStyle = '#dbd9cf'; ctx.fillRect(0, 0, 512, 512);
+      ctx.strokeStyle = '#8c8a82'; ctx.lineWidth = 3;
+      for (let x = 0; x <= 512; x += 64) {
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, 512); ctx.stroke();
       }
-      for (let y = 0; y <= 1024; y += tileSize) {
-        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(1024, y); ctx.stroke();
+      for (let y = 0; y <= 512; y += 64) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(512, y); ctx.stroke();
       }
-
       const texture = new THREE.CanvasTexture(canvas);
-      texture.wrapS = THREE.RepeatWrapping;
-      texture.wrapT = THREE.RepeatWrapping;
+      texture.wrapS = THREE.RepeatWrapping; texture.wrapT = THREE.RepeatWrapping;
       return texture;
     }
 
     function createFloorTexture() {
       const canvas = document.createElement('canvas');
-      canvas.width = 1024; canvas.height = 1024;
+      canvas.width = 512; canvas.height = 512;
       const ctx = canvas.getContext('2d');
-
-      ctx.fillStyle = '#b0b2b5';
-      ctx.fillRect(0, 0, 1024, 1024);
-
-      ctx.strokeStyle = '#5a5d60';
-      ctx.lineWidth = 4;
-
-      for (let x = 0; x <= 1024; x += 128) {
-        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, 1024); ctx.stroke();
+      ctx.fillStyle = '#b0b2b5'; ctx.fillRect(0, 0, 512, 512);
+      ctx.strokeStyle = '#5a5d60'; ctx.lineWidth = 3;
+      for (let x = 0; x <= 512; x += 128) {
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, 512); ctx.stroke();
       }
-      for (let y = 0; y <= 1024; y += 128) {
-        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(1024, y); ctx.stroke();
+      for (let y = 0; y <= 512; y += 128) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(512, y); ctx.stroke();
       }
-
-      // Yellow Braille Line
-      ctx.fillStyle = '#d35400';
-      ctx.fillRect(448, 0, 128, 1024);
+      ctx.fillStyle = '#d35400'; ctx.fillRect(224, 0, 64, 512);
       ctx.fillStyle = '#f39c12';
-      for (let y = 16; y < 1024; y += 32) {
-        ctx.fillRect(464, y, 96, 16);
-      }
-
+      for (let y = 16; y < 512; y += 32) { ctx.fillRect(232, y, 48, 16); }
       const texture = new THREE.CanvasTexture(canvas);
-      texture.wrapS = THREE.RepeatWrapping;
-      texture.wrapT = THREE.RepeatWrapping;
+      texture.wrapS = THREE.RepeatWrapping; texture.wrapT = THREE.RepeatWrapping;
       return texture;
     }
 
-    // --- 7 OFFICIAL POSTER CANVAS DRAWINGS ---
+    // --- 7 POSTERS ---
     function drawPoster(type, options = {}) {
       const canvas = document.createElement('canvas');
-      canvas.width = 512; canvas.height = 768;
+      canvas.width = 256; canvas.height = 384;
       const ctx = canvas.getContext('2d');
-
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(0, 0, 512, 768);
+      ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, 256, 384);
 
       if (type === 'smile') {
-        ctx.fillStyle = '#3498db'; ctx.fillRect(0, 0, 512, 180);
-        ctx.fillStyle = '#fff'; ctx.font = 'bold 36px Arial';
-        ctx.fillText('ニカッと歯科医院', 40, 110);
-
-        ctx.fillStyle = '#ffdbac'; ctx.beginPath(); ctx.arc(256, 420, 140, 0, Math.PI * 2); ctx.fill();
-        ctx.fillStyle = '#4a235a'; ctx.beginPath(); ctx.arc(256, 320, 145, Math.PI, Math.PI * 2); ctx.fill();
-
+        ctx.fillStyle = '#3498db'; ctx.fillRect(0, 0, 256, 90);
+        ctx.fillStyle = '#fff'; ctx.font = 'bold 18px Arial'; ctx.fillText('ニカッと歯科医院', 20, 55);
+        ctx.fillStyle = '#ffdbac'; ctx.beginPath(); ctx.arc(128, 210, 70, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#4a235a'; ctx.beginPath(); ctx.arc(128, 160, 72, Math.PI, Math.PI * 2); ctx.fill();
         if (options.melting) {
           ctx.fillStyle = '#800000';
-          ctx.beginPath(); ctx.arc(210, 420, 35, 0, Math.PI * 2); ctx.fill();
-          ctx.beginPath(); ctx.arc(300, 450, 45, 0, Math.PI * 2); ctx.fill();
-          ctx.fillStyle = '#000';
-          ctx.beginPath(); ctx.arc(256, 510, 50, 0, Math.PI); ctx.fill();
+          ctx.beginPath(); ctx.arc(105, 210, 18, 0, Math.PI * 2); ctx.fill();
+          ctx.beginPath(); ctx.arc(150, 225, 22, 0, Math.PI * 2); ctx.fill();
         } else {
           ctx.fillStyle = '#333';
-          ctx.beginPath(); ctx.arc(200, 400, 15, 0, Math.PI * 2); ctx.fill();
-          ctx.beginPath(); ctx.arc(312, 400, 15, 0, Math.PI * 2); ctx.fill();
-          ctx.strokeStyle = '#e74c3c'; ctx.lineWidth = 8;
-          ctx.beginPath(); ctx.arc(256, 440, 40, 0, Math.PI); ctx.stroke();
+          ctx.beginPath(); ctx.arc(100, 200, 8, 0, Math.PI * 2); ctx.fill();
+          ctx.beginPath(); ctx.arc(156, 200, 8, 0, Math.PI * 2); ctx.fill();
         }
-
-        ctx.fillStyle = '#3498db'; ctx.fillRect(0, 600, 512, 168);
-        ctx.fillStyle = '#f1c40f'; ctx.font = 'bold 42px Arial';
-        ctx.fillText('08/08 OPEN', 120, 710);
-      } 
-      else if (type === 'store') {
-        ctx.fillStyle = '#fcf3cf'; ctx.fillRect(0, 0, 512, 768);
-        ctx.fillStyle = '#c0392b'; ctx.font = 'bold 48px Arial'; ctx.fillText('商店ポスター', 30, 80);
-        ctx.fillStyle = '#e67e22'; ctx.beginPath(); ctx.arc(256, 300, 110, 0, Math.PI * 2); ctx.fill();
-        ctx.fillStyle = '#d35400'; ctx.font = 'bold 32px Arial'; ctx.fillText('アルバイト・パート', 100, 520);
-        ctx.fillStyle = '#7f8c8d'; ctx.fillRect(40, 560, 432, 160);
-      }
-      else if (type === 'dog') {
-        ctx.fillStyle = '#e8f8f5'; ctx.fillRect(0, 0, 512, 768);
-        ctx.fillStyle = '#27ae60'; ctx.fillRect(0, 0, 512, 100);
-        ctx.fillStyle = '#fff'; ctx.font = 'bold 40px Arial'; ctx.fillText('ドッグサロン ズイ', 80, 65);
-        ctx.fillStyle = '#f39c12'; ctx.beginPath(); ctx.arc(256, 380, 130, 0, Math.PI * 2); ctx.fill();
-        ctx.fillStyle = '#27ae60'; ctx.fillRect(0, 660, 512, 108);
-      }
-      else if (type === 'concert') {
-        ctx.fillStyle = '#111'; ctx.fillRect(0, 0, 512, 768);
+        ctx.fillStyle = '#3498db'; ctx.fillRect(0, 300, 256, 84);
+      } else if (type === 'store') {
+        ctx.fillStyle = '#fcf3cf'; ctx.fillRect(0, 0, 256, 384);
+        ctx.fillStyle = '#c0392b'; ctx.font = 'bold 24px Arial'; ctx.fillText('商店ポスター', 15, 40);
+        ctx.fillStyle = '#e67e22'; ctx.beginPath(); ctx.arc(128, 150, 55, 0, Math.PI * 2); ctx.fill();
+      } else if (type === 'dog') {
+        ctx.fillStyle = '#e8f8f5'; ctx.fillRect(0, 0, 256, 384);
+        ctx.fillStyle = '#27ae60'; ctx.fillRect(0, 0, 256, 50);
+        ctx.fillStyle = '#fff'; ctx.font = 'bold 20px Arial'; ctx.fillText('ドッグサロン ズイ', 40, 32);
+        ctx.fillStyle = '#f39c12'; ctx.beginPath(); ctx.arc(128, 190, 65, 0, Math.PI * 2); ctx.fill();
+      } else if (type === 'concert') {
+        ctx.fillStyle = '#111'; ctx.fillRect(0, 0, 256, 384);
         if (options.ghost) {
-          ctx.fillStyle = '#eee'; ctx.beginPath(); ctx.arc(256, 350, 120, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = '#eee'; ctx.beginPath(); ctx.arc(128, 175, 60, 0, Math.PI * 2); ctx.fill();
           ctx.fillStyle = '#000';
-          ctx.beginPath(); ctx.arc(200, 330, 35, 0, Math.PI * 2); ctx.fill();
-          ctx.beginPath(); ctx.arc(312, 330, 35, 0, Math.PI * 2); ctx.fill();
-          ctx.beginPath(); ctx.arc(256, 420, 45, 0, Math.PI * 2); ctx.fill();
+          ctx.beginPath(); ctx.arc(100, 165, 18, 0, Math.PI * 2); ctx.fill();
+          ctx.beginPath(); ctx.arc(156, 165, 18, 0, Math.PI * 2); ctx.fill();
         } else {
-          ctx.fillStyle = '#8e44ad'; ctx.font = 'bold 42px Arial'; ctx.fillText('2026 CONCERT', 80, 200);
-          ctx.fillStyle = '#ecf0f1'; ctx.font = '28px Arial'; ctx.fillText('PEOPLE LIVE TOUR', 110, 300);
+          ctx.fillStyle = '#8e44ad'; ctx.font = 'bold 22px Arial'; ctx.fillText('2026 CONCERT', 40, 100);
         }
+      } else if (type === 'makeup') {
+        ctx.fillStyle = '#f5eep6'; ctx.fillRect(0, 0, 256, 384);
+        ctx.fillStyle = '#8e44ad'; ctx.font = 'bold 22px Arial'; ctx.fillText('MAKEUP ART', 55, 60);
+      } else if (type === 'movefes') {
+        ctx.fillStyle = '#1b2631'; ctx.fillRect(0, 0, 256, 384);
+        ctx.fillStyle = '#e74c3c'; ctx.font = 'bold 26px Arial'; ctx.fillText('映画フェス', 65, 75);
+      } else if (type === 'camera') {
+        ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, 256, 384);
+        ctx.lineWidth = 8; ctx.strokeStyle = '#000'; ctx.strokeRect(10, 10, 236, 364);
+        ctx.fillStyle = '#000'; ctx.fillRect(75, 90, 110, 60);
+        const eyeX = options.eyeX || 75;
+        ctx.fillStyle = '#e74c3c'; ctx.beginPath(); ctx.arc(eyeX, 120, 10, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#000'; ctx.font = 'bold 20px Arial'; ctx.fillText('監視カメラ作動中', 40, 275);
       }
-      else if (type === 'makeup') {
-        ctx.fillStyle = '#f5eep6'; ctx.fillRect(0, 0, 512, 768);
-        ctx.fillStyle = '#8e44ad'; ctx.font = 'bold 44px Arial'; ctx.fillText('MAKEUP ART', 110, 120);
-        ctx.fillStyle = '#d2b4de'; ctx.fillRect(60, 180, 392, 450);
-        ctx.fillStyle = '#7d3c98'; ctx.font = 'bold 36px Arial'; ctx.fillText('ココ文字カラ', 150, 700);
-      }
-      else if (type === 'movefes') {
-        ctx.fillStyle = '#1b2631'; ctx.fillRect(0, 0, 512, 768);
-        ctx.fillStyle = '#e74c3c'; ctx.font = 'bold 52px Arial'; ctx.fillText('映画フェス', 130, 150);
-        ctx.fillStyle = '#f39c12'; ctx.font = 'bold 36px Arial'; ctx.fillText('MOVEFES 2026', 120, 240);
-        ctx.fillStyle = '#bdc3c7'; ctx.fillRect(50, 300, 412, 380);
-      }
-      else if (type === 'camera') {
-        ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, 512, 768);
-        ctx.lineWidth = 16; ctx.strokeStyle = '#000'; ctx.strokeRect(20, 20, 472, 728);
-        ctx.fillStyle = '#000'; ctx.fillRect(150, 180, 220, 120);
-        ctx.beginPath(); ctx.arc(150, 240, 60, 0, Math.PI * 2); ctx.fill();
-
-        const eyeX = options.eyeX || 150;
-        const eyeY = options.eyeY || 240;
-        ctx.fillStyle = '#e74c3c'; ctx.beginPath(); ctx.arc(eyeX, eyeY, 20, 0, Math.PI * 2); ctx.fill();
-
-        ctx.fillStyle = '#000'; ctx.font = 'bold 42px Arial'; ctx.fillText('監視カメラ作動中', 80, 550);
-        ctx.font = '22px Arial'; ctx.fillText('防犯カメラ録画中・警備強化区域', 90, 620);
-      }
-
       return new THREE.CanvasTexture(canvas);
     }
 
-    // --- SCENE SETUP ---
+    // --- SETUP SCENE ---
     const container = document.getElementById('game-container');
     const startScreen = document.getElementById('start-screen');
     const exitText = document.getElementById('exit-text');
 
     const scene = new THREE.Scene();
-    scene.fog = new THREE.FogExp2(0x0a0a0d, 0.02);
+    scene.fog = new THREE.FogExp2(0x0a0a0d, 0.035);
 
-    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
+    const renderer = new THREE.WebGLRenderer({ antialias: false, powerPreference: 'high-performance' });
     renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
     renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-    renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.0;
+    renderer.shadowMap.type = THREE.BasicShadowMap;
     container.appendChild(renderer.domElement);
 
-    // Tunnel Dimensions
     const TUNNEL_WIDTH = 6;
     const TUNNEL_HEIGHT = 4;
     const TUNNEL_LENGTH = 36;
@@ -319,17 +263,15 @@
     const tunnelGroup = new THREE.Group();
     scene.add(tunnelGroup);
 
-    // Materials
     const wallTex = createTileTexture(); wallTex.repeat.set(12, 2);
     const floorTex = createFloorTexture(); floorTex.repeat.set(2, 24);
 
-    const wallMat = new THREE.MeshStandardMaterial({ map: wallTex, roughness: 0.25, metalness: 0.1 });
-    const floorMat = new THREE.MeshStandardMaterial({ map: floorTex, roughness: 0.35, metalness: 0.1 });
-    const ceilingMat = new THREE.MeshStandardMaterial({ color: 0xc8cbd0, roughness: 0.8 });
+    const wallMat = new THREE.MeshStandardMaterial({ map: wallTex, roughness: 0.3 });
+    const floorMat = new THREE.MeshStandardMaterial({ map: floorTex, roughness: 0.4 });
+    const ceilingMat = new THREE.MeshStandardMaterial({ color: 0xc8cbd0 });
 
-    // Tunnel Geometries
     const floor = new THREE.Mesh(new THREE.PlaneGeometry(TUNNEL_WIDTH, TUNNEL_LENGTH), floorMat);
-    floor.rotation.x = -Math.PI / 2; floor.position.z = -TUNNEL_LENGTH / 2; floor.receiveShadow = true;
+    floor.rotation.x = -Math.PI / 2; floor.position.z = -TUNNEL_LENGTH / 2;
     tunnelGroup.add(floor);
 
     const ceiling = new THREE.Mesh(new THREE.PlaneGeometry(TUNNEL_WIDTH, TUNNEL_LENGTH), ceilingMat);
@@ -338,116 +280,44 @@
 
     const leftWall = new THREE.Mesh(new THREE.PlaneGeometry(TUNNEL_LENGTH, TUNNEL_HEIGHT), wallMat);
     leftWall.rotation.y = Math.PI / 2; leftWall.position.x = -TUNNEL_WIDTH / 2; leftWall.position.y = TUNNEL_HEIGHT / 2; leftWall.position.z = -TUNNEL_LENGTH / 2;
-    leftWall.receiveShadow = true;
     tunnelGroup.add(leftWall);
 
     const rightWall = new THREE.Mesh(new THREE.PlaneGeometry(TUNNEL_LENGTH, TUNNEL_HEIGHT), wallMat);
     rightWall.rotation.y = -Math.PI / 2; rightWall.position.x = TUNNEL_WIDTH / 2; rightWall.position.y = TUNNEL_HEIGHT / 2; rightWall.position.z = -TUNNEL_LENGTH / 2;
-    rightWall.receiveShadow = true;
     tunnelGroup.add(rightWall);
 
-    // --- CEILING LIGHTS ---
+    // Light Fixtures
     const lights = [];
-    for (let z = -4; z > -TUNNEL_LENGTH; z -= 6) {
-      const lMesh = new THREE.Mesh(
-        new THREE.BoxGeometry(1.6, 0.08, 0.5),
-        new THREE.MeshBasicMaterial({ color: 0xffffff })
-      );
-      lMesh.position.set(0, TUNNEL_HEIGHT - 0.04, z);
-      tunnelGroup.add(lMesh);
-
-      const pLight = new THREE.PointLight(0xfff8e7, 1.3, 14);
+    for (let z = -4; z > -TUNNEL_LENGTH; z -= 8) {
+      const pLight = new THREE.PointLight(0xfff8e7, 1.2, 12);
       pLight.position.set(0, TUNNEL_HEIGHT - 0.2, z);
-      pLight.castShadow = true;
-      pLight.shadow.bias = -0.002;
       tunnelGroup.add(pLight);
       lights.push(pLight);
     }
 
-    // --- CEILING VENTS (LÜFTUNGSSCHÄCHTE) ---
-    const ventMat = new THREE.MeshStandardMaterial({ color: 0x333333, roughness: 0.6, metalness: 0.8 });
+    // Vents & Doors
+    const ventMat = new THREE.MeshStandardMaterial({ color: 0x333333 });
     for (let z = -7; z > -TUNNEL_LENGTH; z -= 10) {
       const vent = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.05, 1.2), ventMat);
       vent.position.set(-1.8, TUNNEL_HEIGHT - 0.02, z);
       tunnelGroup.add(vent);
     }
 
-    // --- 2 DOORS ON RIGHT WALL (ZWEI METALLTÜREN) ---
-    const doorMat = new THREE.MeshStandardMaterial({ color: 0x4a5568, roughness: 0.4, metalness: 0.6 });
-    const handleMat = new THREE.MeshStandardMaterial({ color: 0xd69e2e, roughness: 0.2, metalness: 0.9 });
-
-    [ -12, -24 ].forEach(zPos => {
-      const doorGroup = new THREE.Group();
-      const doorFrame = new THREE.Mesh(new THREE.BoxGeometry(0.1, 2.5, 1.3), new THREE.MeshStandardMaterial({ color: 0x2d3748 }));
-      const doorPanel = new THREE.Mesh(new THREE.BoxGeometry(0.06, 2.4, 1.2), doorMat);
-      const handle = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.25), handleMat);
-      
-      handle.rotation.z = Math.PI / 2;
-      handle.position.set(-0.05, 0, 0.4);
-      doorPanel.add(handle);
-
-      doorGroup.position.set(TUNNEL_WIDTH / 2 - 0.04, 1.25, zPos);
-      doorGroup.add(doorFrame);
-      doorGroup.add(doorPanel);
-      tunnelGroup.add(doorGroup);
+    const doorMat = new THREE.MeshStandardMaterial({ color: 0x4a5568 });
+    [-12, -24].forEach(zPos => {
+      const door = new THREE.Mesh(new THREE.BoxGeometry(0.06, 2.4, 1.2), doorMat);
+      door.position.set(TUNNEL_WIDTH / 2 - 0.04, 1.25, zPos);
+      tunnelGroup.add(door);
     });
 
-    // --- SECURITY CAMERAS ON OPPOSITE WALL (RIGHT SIDE) ---
-    const camBodyMat = new THREE.MeshStandardMaterial({ color: 0x1a202c, roughness: 0.3, metalness: 0.7 });
-    const camLensMat = new THREE.MeshStandardMaterial({ color: 0x000000, roughness: 0.1 });
-    const camRedMat = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-
-    [ -8, -18, -28 ].forEach(zPos => {
-      const cameraGroup = new THREE.Group();
-      
-      const base = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.1), camBodyMat);
-      base.rotation.z = Math.PI / 2;
-      
-      const body = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.15, 0.35), camBodyMat);
-      body.position.set(-0.1, -0.1, -0.1);
-      
-      const lens = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.08), camLensMat);
-      lens.rotation.x = Math.PI / 2;
-      lens.position.set(0, 0, -0.18);
-      body.add(lens);
-
-      const redDot = new THREE.Mesh(new THREE.SphereGeometry(0.015, 8, 8), camRedMat);
-      redDot.position.set(0.07, 0.05, -0.16);
-      body.add(redDot);
-
-      cameraGroup.add(base);
-      cameraGroup.add(body);
-      cameraGroup.position.set(TUNNEL_WIDTH / 2 - 0.1, TUNNEL_HEIGHT - 0.6, zPos);
-      cameraGroup.rotation.y = -Math.PI / 4;
-      tunnelGroup.add(cameraGroup);
-    });
-
-    // --- EXIT 8 SIGN ---
-    const signCanvas = document.createElement('canvas'); signCanvas.width = 512; signCanvas.height = 128;
-    const sCtx = signCanvas.getContext('2d');
-    sCtx.fillStyle = '#f1c40f'; sCtx.fillRect(0, 0, 512, 128);
-    sCtx.fillStyle = '#000'; sCtx.font = 'bold 64px Arial'; sCtx.textAlign = 'center';
-    sCtx.fillText('↑ 出口 8 Exit', 256, 88);
-    const signTex = new THREE.CanvasTexture(signCanvas);
-
-    const exitSign = new THREE.Mesh(
-      new THREE.BoxGeometry(2.8, 0.7, 0.1),
-      new THREE.MeshStandardMaterial({ map: signTex, roughness: 0.1 })
-    );
-    exitSign.position.set(0, TUNNEL_HEIGHT - 0.6, -10);
-    tunnelGroup.add(exitSign);
-
-    // --- POSTERS SETUP (7 PLAKATS) ---
+    // Posters
     const posterTypes = ['smile', 'store', 'dog', 'concert', 'makeup', 'movefes', 'camera'];
     const posterMeshes = [];
-
     const posterGroup = new THREE.Group();
     tunnelGroup.add(posterGroup);
 
     function createPosters(anomaly = -1) {
-      while(posterGroup.children.length > 0) { 
-        posterGroup.remove(posterGroup.children[0]); 
-      }
+      while(posterGroup.children.length > 0) { posterGroup.remove(posterGroup.children[0]); }
       posterMeshes.length = 0;
 
       const isTakeover = (anomaly === 3);
@@ -460,10 +330,8 @@
         if (type === 'concert' && anomaly === 2) opts.ghost = true;
 
         const mat = new THREE.MeshBasicMaterial({ map: drawPoster(pType, opts) });
-        const height = isGrowth ? 3.2 : 1.5;
-        const pGeo = new THREE.PlaneGeometry(1.0, height);
-        const mesh = new THREE.Mesh(pGeo, mat);
-
+        const height = isGrowth ? 3.0 : 1.5;
+        const mesh = new THREE.Mesh(new THREE.PlaneGeometry(1.0, height), mat);
         mesh.position.set(-TUNNEL_WIDTH / 2 + 0.02, 2.0, -6 - idx * 4);
         mesh.rotation.y = Math.PI / 2;
 
@@ -472,88 +340,42 @@
       });
     }
 
-    // --- HIGH-GRAPHICS DETAILED MAN MODEL ---
+    // Man Model
     const manGroup = new THREE.Group();
+    const suitMat = new THREE.MeshStandardMaterial({ color: 0x1c2024 });
+    const skinMat = new THREE.MeshStandardMaterial({ color: 0xffdbac });
 
-    const suitMat = new THREE.MeshStandardMaterial({ color: 0x1c2024, roughness: 0.5 });
-    const shirtMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.3 });
-    const tieMat = new THREE.MeshStandardMaterial({ color: 0x8b0000, roughness: 0.4 });
-    const skinMat = new THREE.MeshStandardMaterial({ color: 0xffdbac, roughness: 0.7 });
-    const hairMat = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.9 });
-    const shoeMat = new THREE.MeshStandardMaterial({ color: 0x050505, roughness: 0.2 });
+    const head = new THREE.Mesh(new THREE.SphereGeometry(0.18, 12, 12), skinMat);
+    head.position.y = 1.68; manGroup.add(head);
 
-    // Head & Hair
-    const head = new THREE.Mesh(new THREE.SphereGeometry(0.18, 24, 24), skinMat);
-    head.position.y = 1.68;
-    head.scale.set(0.9, 1.1, 0.95);
-    manGroup.add(head);
+    const torso = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.20, 0.75, 12), suitMat);
+    torso.position.y = 1.15; manGroup.add(torso);
 
-    const hair = new THREE.Mesh(new THREE.SphereGeometry(0.185, 16, 16), hairMat);
-    hair.position.set(0, 1.73, -0.01);
-    hair.scale.set(0.92, 0.7, 0.96);
-    manGroup.add(hair);
-
-    // Torso (Suit Jacket + Shirt + Tie)
-    const torso = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.20, 0.75, 16), suitMat);
-    torso.position.y = 1.15; torso.castShadow = true; manGroup.add(torso);
-
-    const shirtInner = new THREE.Mesh(new THREE.PlaneGeometry(0.14, 0.4), shirtMat);
-    shirtInner.position.set(0, 1.25, 0.19); manGroup.add(shirtInner);
-
-    const tie = new THREE.Mesh(new THREE.PlaneGeometry(0.04, 0.35), tieMat);
-    tie.position.set(0, 1.22, 0.20); manGroup.add(tie);
-
-    // Arms
-    const armGeo = new THREE.CylinderGeometry(0.065, 0.055, 0.65);
-    const leftArm = new THREE.Mesh(armGeo, suitMat); leftArm.position.set(-0.30, 1.15, 0); manGroup.add(leftArm);
-    const rightArm = new THREE.Mesh(armGeo, suitMat); rightArm.position.set(0.30, 1.15, 0); manGroup.add(rightArm);
-
-    // Legs & Shoes
-    const legGeo = new THREE.CylinderGeometry(0.085, 0.07, 0.85);
-    const leftLeg = new THREE.Mesh(legGeo, suitMat); leftLeg.position.set(-0.12, 0.425, 0); leftLeg.castShadow = true;
-    const rightLeg = new THREE.Mesh(legGeo, suitMat); rightLeg.position.set(0.12, 0.425, 0); rightLeg.castShadow = true;
+    const legGeo = new THREE.CylinderGeometry(0.08, 0.07, 0.85);
+    const leftLeg = new THREE.Mesh(legGeo, suitMat); leftLeg.position.set(-0.12, 0.425, 0);
+    const rightLeg = new THREE.Mesh(legGeo, suitMat); rightLeg.position.set(0.12, 0.425, 0);
     manGroup.add(leftLeg); manGroup.add(rightLeg);
-
-    const shoeGeo = new THREE.BoxGeometry(0.1, 0.08, 0.22);
-    const leftShoe = new THREE.Mesh(shoeGeo, shoeMat); leftShoe.position.set(-0.12, 0.04, 0.04);
-    const rightShoe = new THREE.Mesh(shoeGeo, shoeMat); rightShoe.position.set(0.12, 0.04, 0.04);
-    manGroup.add(leftShoe); manGroup.add(rightShoe);
-
-    // Briefcase
-    const briefcase = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.28, 0.38), new THREE.MeshStandardMaterial({ color: 0x080808, roughness: 0.3 }));
-    briefcase.position.set(-0.36, 0.7, 0); briefcase.castShadow = true;
-    manGroup.add(briefcase);
 
     scene.add(manGroup);
 
-    function resetMan() {
-      manGroup.position.set(1.0, 0, -32);
-    }
+    function resetMan() { manGroup.position.set(1.0, 0, -32); }
     resetMan();
 
-    // --- GAME STATE & ANOMALIES ---
+    // --- GAME STATE ---
     let currentExit = 0;
     let anomalyPresent = false;
-    let anomalyType = 0; 
+    let anomalyType = -1;
 
     function triggerNextSection(turnedBack) {
       if (turnedBack) {
-        if (anomalyPresent) {
-          currentExit++;
-        } else {
-          currentExit = 0;
-        }
+        currentExit = anomalyPresent ? currentExit + 1 : 0;
       } else {
-        if (!anomalyPresent) {
-          currentExit++;
-        } else {
-          currentExit = 0;
-        }
+        currentExit = !anomalyPresent ? currentExit + 1 : 0;
       }
 
       exitText.innerText = `EXIT ${currentExit}`;
       if (currentExit >= 8) {
-        alert("🎉 EXIT 8 REACHED! You escaped!");
+        alert("🎉 EXIT 8 ERREICHT! Du bist entkommen!");
         currentExit = 0;
         exitText.innerText = `EXIT 0`;
       }
@@ -566,17 +388,16 @@
       });
 
       createPosters(anomalyPresent ? anomalyType : -1);
-
       camera.position.set(0, 1.7, -2);
       resetMan();
     }
 
     createPosters(-1);
 
-    // --- CONTROLS & RENDER LOOP ---
+    // --- CONTROLS (WASD + MOUSE) ---
     camera.position.set(0, 1.7, -2);
 
-    let moveForward = false, moveBackward = false, isSprinting = false;
+    let moveFwd = false, moveBwd = false, moveLft = false, moveRgt = false, isSprinting = false;
     let yaw = 0, pitch = 0;
 
     startScreen.addEventListener('click', () => container.requestPointerLock());
@@ -587,21 +408,29 @@
 
     document.addEventListener('mousemove', (e) => {
       if (document.pointerLockElement === container) {
-        yaw -= e.movementX * 0.002;
-        pitch -= e.movementY * 0.002;
-        pitch = Math.max(-Math.PI / 3, Math.min(Math.PI / 3, pitch));
+        yaw -= e.movementX * 0.0025;
+        pitch -= e.movementY * 0.0025;
+        pitch = Math.max(-Math.PI / 2.8, Math.min(Math.PI / 2.8, pitch));
       }
     });
 
     window.addEventListener('keydown', (e) => {
-      if (e.code === 'KeyW' || e.code === 'ArrowUp') moveForward = true;
-      if (e.code === 'KeyS' || e.code === 'ArrowDown') moveBackward = true;
+      switch(e.code) {
+        case 'KeyW': case 'ArrowUp': moveFwd = true; break;
+        case 'KeyS': case 'ArrowDown': moveBwd = true; break;
+        case 'KeyA': case 'ArrowLeft': moveLft = true; break;
+        case 'KeyD': case 'ArrowRight': moveRgt = true; break;
+      }
       if (e.shiftKey) isSprinting = true;
     });
 
     window.addEventListener('keyup', (e) => {
-      if (e.code === 'KeyW' || e.code === 'ArrowUp') moveForward = false;
-      if (e.code === 'KeyS' || e.code === 'ArrowDown') moveBackward = false;
+      switch(e.code) {
+        case 'KeyW': case 'ArrowUp': moveFwd = false; break;
+        case 'KeyS': case 'ArrowDown': moveBwd = false; break;
+        case 'KeyA': case 'ArrowLeft': moveLft = false; break;
+        case 'KeyD': case 'ArrowRight': moveRgt = false; break;
+      }
       if (!e.shiftKey) isSprinting = false;
     });
 
@@ -610,6 +439,20 @@
       camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);
     });
+
+    // Frustum Culling / Visibility Optimierung
+    const frustum = new THREE.Frustum();
+    const projScreenMatrix = new THREE.Matrix4();
+
+    function updateVisibility() {
+      projScreenMatrix.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse);
+      frustum.setFromProjectionMatrix(projScreenMatrix);
+
+      posterGroup.children.forEach(obj => {
+        obj.visible = frustum.intersectsObject(obj);
+      });
+      manGroup.visible = frustum.intersectsObject(torso);
+    }
 
     const clock = new THREE.Clock();
 
@@ -621,39 +464,32 @@
       camera.rotation.y = yaw;
       camera.rotation.x = pitch;
 
-      const speed = (isSprinting ? 5.5 : 3.0) * delta;
-      if (moveForward) camera.position.z -= speed;
-      if (moveBackward) camera.position.z += speed;
+      // Direction Vectors for WASD
+      const moveSpeed = (isSprinting ? 6.5 : 4.0) * delta;
+      const forward = new THREE.Vector3(0, 0, -1).applyAxisAngle(new THREE.Vector3(0, 1, 0), yaw);
+      const side = new THREE.Vector3(1, 0, 0).applyAxisAngle(new THREE.Vector3(0, 1, 0), yaw);
 
-      // Realistic Walking Animation for the Man
-      manGroup.position.z += 1.7 * delta;
-      const legTime = clock.getElapsedTime() * 7;
-      
-      leftLeg.rotation.x = Math.sin(legTime) * 0.45;
-      leftShoe.rotation.x = Math.sin(legTime) * 0.45;
-      leftShoe.position.z = 0.04 + Math.sin(legTime) * 0.15;
+      if (moveFwd) camera.position.addScaledVector(forward, moveSpeed);
+      if (moveBwd) camera.position.addScaledVector(forward, -moveSpeed);
+      if (moveLft) camera.position.addScaledVector(side, -moveSpeed);
+      if (moveRgt) camera.position.addScaledVector(side, moveSpeed);
 
-      rightLeg.rotation.x = -Math.sin(legTime) * 0.45;
-      rightShoe.rotation.x = -Math.sin(legTime) * 0.45;
-      rightShoe.position.z = 0.04 - Math.sin(legTime) * 0.15;
+      // Clamp player within tunnel bounds
+      camera.position.x = Math.max(-TUNNEL_WIDTH / 2 + 0.5, Math.min(TUNNEL_WIDTH / 2 - 0.5, camera.position.x));
 
-      leftArm.rotation.x = -Math.sin(legTime) * 0.35;
-      rightArm.rotation.x = Math.sin(legTime) * 0.35;
+      // Man Walking
+      manGroup.position.z += 1.8 * delta;
+      const legTime = clock.getElapsedTime() * 8;
+      leftLeg.rotation.x = Math.sin(legTime) * 0.4;
+      rightLeg.rotation.x = -Math.sin(legTime) * 0.4;
 
-      // Stalker Sign Anomaly
-      if (anomalyPresent && anomalyType === 6) {
-        const lastPoster = posterMeshes[6];
-        if (lastPoster) lastPoster.mesh.position.z = camera.position.z - 3;
+      // Anomaly updates
+      if (anomalyPresent && anomalyType === 6 && posterMeshes[6]) {
+        posterMeshes[6].mesh.position.z = camera.position.z - 3;
       }
 
-      // Tracking Eyes Anomaly
-      if (anomalyPresent && anomalyType === 5) {
-        const camPoster = posterMeshes[6];
-        if (camPoster) {
-          const eyeX = 150 + Math.sin(clock.getElapsedTime() * 4) * 30;
-          camPoster.mesh.material.map = drawPoster('camera', { eyeX: eyeX, eyeY: 240 });
-        }
-      }
+      // Hide elements behind player view to boost FPS
+      updateVisibility();
 
       // Loop Triggers
       if (camera.position.z < -34) {
