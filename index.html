@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <title>The Exit 8 - Full Game</title>
+  <title>The Exit 8 - 3D Fan Game</title>
   <style>
     body, html {
       margin: 0;
@@ -126,6 +126,7 @@
 <body>
 
   <div id="game-container"></div>
+  
   <div id="crosshair"></div>
 
   <div id="ui">
@@ -164,16 +165,19 @@
     let activeAnomalyType = 0;
     let triggerZonePassed = false;
     
-    // 3D Gruppen & Objekte
-    let floorMesh, postersGroup, normalLightsGroup, doorsGroup, ventsGroup, cctvCameraMesh, cameraLedMesh, ceilingSignMesh, npcGroup;
-    let redWaterMesh = null, facelessFigureMesh = null;
+    // Referenzen & Anomaly Objekte
+    let floorMesh, postersGroup, cameraLight, normalLightsGroup, doorsGroup, ventsGroup;
+    let cameraMesh, redCameraLed, ceilingSignMesh, npcGroup;
+    let redWaterMesh = null, facelessFigureMesh = null, staircaseMesh = null, dripMesh = null, noEntryGroup = null;
+    let pupilMeshLeft = null, pupilMeshRight = null;
 
-    // Dynamische Effekt-Flags
+    // Dynamic Effect Flags
     let animatePostersSliding = false;
     let trackPlayerWithPoster = false;
     let trackPlayerWithPupils = false;
     let enableFlickeringLights = false;
-    let blinkCameraLed = false;
+    let isBlackout = false;
+    let doorBanging = false;
     let npcBehavior = 'walk';
     let npcSpeed = 3.5;
 
@@ -183,7 +187,7 @@
     const exitSignUI = document.getElementById('exit-sign');
     const exitTextUI = document.getElementById('exit-text');
 
-    // --- TEXTUR-GENERATOREN ---
+    // Texturen mit Canvas generieren (Fliesen, Poster, Schränke)
     function createTileTexture(faceOverlay = false, uneven = false) {
       const canvas = document.createElement('canvas');
       canvas.width = 256; canvas.height = 256;
@@ -193,17 +197,20 @@
       
       let step = 32;
       for(let i=0; i<=256; i+=step) {
+        if (uneven && i === 64) continue;
         ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, 256); ctx.stroke();
         ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(256, i); ctx.stroke();
       }
 
       if (faceOverlay) {
         ctx.fillStyle = '#000000';
+        ctx.strokeStyle = '#000000';
+        ctx.lineWidth = 2;
         for(let x=16; x<256; x+=32) {
           for(let y=16; y<256; y+=32) {
-            ctx.beginPath(); ctx.arc(x, y-4, 2, 0, Math.PI*2); ctx.fill();
-            ctx.beginPath(); ctx.arc(x+6, y-4, 2, 0, Math.PI*2); ctx.fill();
-            ctx.beginPath(); ctx.arc(x+3, y+4, 4, 0, Math.PI); ctx.stroke();
+            ctx.beginPath(); ctx.arc(x-4, y-4, 2, 0, Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.arc(x+4, y-4, 2, 0, Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.arc(x, y+2, 4, 0, Math.PI); ctx.stroke();
           }
         }
       }
@@ -223,24 +230,46 @@
       ctx.strokeStyle = '#fff'; ctx.lineWidth = 10; ctx.strokeRect(5, 5, 246, 374);
 
       if (special === 'horror') {
-        ctx.fillStyle = '#000'; ctx.fillRect(0,0,256,384);
-        ctx.fillStyle = '#ff0000'; ctx.font = 'bold 36px Arial'; ctx.textAlign = 'center';
-        ctx.fillText("DONT LOOK", 128, 100);
-        ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(80, 200, 20, 0, Math.PI*2); ctx.fill();
-        ctx.beginPath(); ctx.arc(176, 200, 20, 0, Math.PI*2); ctx.fill();
-        ctx.fillStyle = '#000'; ctx.beginPath(); ctx.arc(80, 200, 5, 0, Math.PI*2); ctx.fill();
-        ctx.beginPath(); ctx.arc(176, 200, 5, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = '#000000'; ctx.fillRect(0, 0, 256, 384);
+        ctx.fillStyle = '#ff0000'; ctx.font = 'bold 32px Arial'; ctx.textAlign = 'center';
+        ctx.fillText("RUN AWAY", 128, 80);
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath(); ctx.arc(80, 200, 25, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(176, 200, 25, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = '#000000';
+        ctx.beginPath(); ctx.arc(80, 200, 6, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(176, 200, 6, 0, Math.PI*2); ctx.fill();
+        ctx.strokeStyle = '#ff0000'; ctx.lineWidth = 6;
+        ctx.beginPath(); ctx.arc(128, 280, 30, 0, Math.PI); ctx.stroke();
+      } else if (special === 'disfigured') {
+        ctx.fillStyle = textColor; ctx.font = 'bold 28px Arial'; ctx.textAlign = 'center';
+        ctx.fillText(text, 128, 100);
+        ctx.fillStyle = '#000000';
+        ctx.beginPath(); ctx.ellipse(80, 200, 30, 10, 0.5, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.ellipse(176, 190, 15, 40, -0.4, 0, Math.PI*2); ctx.fill();
       } else if (special === 'eyes') {
-        ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(80, 180, 30, 0, Math.PI*2); ctx.fill();
-        ctx.beginPath(); ctx.arc(176, 180, 30, 0, Math.PI*2); ctx.fill();
-        ctx.fillStyle = '#000000'; ctx.beginPath(); ctx.arc(80, 180, 10, 0, Math.PI*2); ctx.fill();
-        ctx.beginPath(); ctx.arc(176, 180, 10, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = textColor; ctx.font = 'bold 28px Arial'; ctx.textAlign = 'center';
+        ctx.fillText(text, 128, 80);
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath(); ctx.arc(80, 200, 25, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(176, 200, 25, 0, Math.PI*2); ctx.fill();
       } else {
         ctx.fillStyle = textColor; ctx.font = 'bold 28px Arial'; ctx.textAlign = 'center';
         ctx.fillText(text, 128, 100);
         ctx.fillStyle = '#333'; ctx.font = '16px Arial';
         ctx.fillText("SUBWAY ADVT", 128, 200);
       }
+      return new THREE.CanvasTexture(canvas);
+    }
+
+    function createMetalDoorTexture() {
+      const canvas = document.createElement('canvas');
+      canvas.width = 256; canvas.height = 512;
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#5a6572'; ctx.fillRect(0,0,256,512);
+      ctx.strokeStyle = '#3a4149'; ctx.lineWidth = 8; ctx.strokeRect(10,10,236,492);
+      ctx.fillStyle = '#222'; ctx.fillRect(128-40, 50, 80, 10);
+      ctx.fillRect(128-40, 70, 80, 10);
       return new THREE.CanvasTexture(canvas);
     }
 
@@ -254,7 +283,9 @@
       return new THREE.CanvasTexture(canvas);
     }
 
-    // --- INITIALISIERUNG ---
+    const tileTexture = createTileTexture();
+
+    // --- Init ---
     function init() {
       scene = new THREE.Scene();
       scene.background = new THREE.Color(0x050505);
@@ -266,16 +297,21 @@
       renderer = new THREE.WebGLRenderer({ antialias: true });
       renderer.setSize(window.innerWidth, window.innerHeight);
       renderer.setPixelRatio(window.devicePixelRatio);
+      renderer.shadowMap.enabled = true;
       document.getElementById('game-container').appendChild(renderer.domElement);
 
+      // Map bauen
       buildTunnelLayout();
 
+      // Event Listener
       document.addEventListener('keydown', onKeyDown);
       document.addEventListener('keyup', onKeyUp);
       document.addEventListener('mousemove', onMouseMove);
       window.addEventListener('resize', onWindowResize);
 
-      startBtn.addEventListener('click', () => { document.body.requestPointerLock(); });
+      startBtn.addEventListener('click', () => {
+        document.body.requestPointerLock();
+      });
 
       document.addEventListener('pointerlockchange', () => {
         if (document.pointerLockElement === document.body) {
@@ -291,15 +327,15 @@
       animate();
     }
 
-    // --- TUNNEL BAUEN ---
+    // --- Bau des Tunnels mit Abzweigungen (Ecken) ---
     function buildTunnelLayout() {
-      const wallMat = new THREE.MeshPhongMaterial({ color: 0xdddddd, map: createTileTexture() });
-      const floorMat = new THREE.MeshPhongMaterial({ color: 0x999999, map: createTileTexture() });
+      const wallMat = new THREE.MeshPhongMaterial({ color: 0xdddddd, map: tileTexture });
+      const floorMat = new THREE.MeshPhongMaterial({ color: 0x999999, map: tileTexture });
       const ceilingMat = new THREE.MeshPhongMaterial({ color: 0x222222 });
 
       const w = 4, h = 3.5, l = 40;
 
-      // Boden & Decke
+      // Boden & Decke Hauptgang
       floorMesh = new THREE.Mesh(new THREE.PlaneGeometry(w, l), floorMat);
       floorMesh.rotation.x = -Math.PI / 2;
       scene.add(floorMesh);
@@ -309,25 +345,29 @@
       ceiling.position.y = h;
       scene.add(ceiling);
 
-      // Wände
-      const leftWall = new THREE.Mesh(new THREE.PlaneGeometry(l, h), wallMat);
+      // Linke Wand
+      const wallGeo = new THREE.PlaneGeometry(l, h);
+      const leftWall = new THREE.Mesh(wallGeo, wallMat);
       leftWall.rotation.y = Math.PI / 2;
       leftWall.position.set(-w/2, h/2, 0);
       scene.add(leftWall);
 
-      const rightWall = new THREE.Mesh(new THREE.PlaneGeometry(l, h), wallMat);
+      // Rechte Wand
+      const rightWall = new THREE.Mesh(wallGeo, wallMat);
       rightWall.rotation.y = -Math.PI / 2;
       rightWall.position.set(w/2, h/2, 0);
       scene.add(rightWall);
 
-      // Ecken an den Enden (Verhindert schwarze Löcher)
+      // --- ECKEN AN DEN ENDEN ---
       createCornerExtension(0, 0, -l/2, Math.PI / 2, wallMat, floorMat, ceilingMat);
       createCornerExtension(0, 0, l/2, -Math.PI / 2, wallMat, floorMat, ceilingMat);
 
-      // Beleuchtung
+      // --- BELEUCHTUNG ---
       normalLightsGroup = new THREE.Group();
       for (let z = -15; z <= 15; z += 10) {
-        const lightMesh = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.1, 2), new THREE.MeshBasicMaterial({ color: 0xffffff }));
+        const lightGeo = new THREE.BoxGeometry(0.2, 0.1, 2);
+        const lightMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+        const lightMesh = new THREE.Mesh(lightGeo, lightMat);
         lightMesh.position.set(0, h - 0.05, z);
         normalLightsGroup.add(lightMesh);
 
@@ -337,7 +377,8 @@
       }
       scene.add(normalLightsGroup);
 
-      scene.add(new THREE.AmbientLight(0xffffff, 0.25));
+      const ambLight = new THREE.AmbientLight(0xffffff, 0.25);
+      scene.add(ambLight);
 
       // Deckenschild ("CONCOURSE")
       const signGeo = new THREE.PlaneGeometry(2, 0.5);
@@ -346,20 +387,20 @@
       ceilingSignMesh.position.set(0, h - 0.4, 0);
       scene.add(ceilingSignMesh);
 
-      // Poster
+      // POSTER
       postersGroup = new THREE.Group();
       buildPosters(6);
       scene.add(postersGroup);
 
-      // Türen & Lüftungen
+      // SCHRÄNKE / TÜREN & LÜFTUNGEN
       doorsGroup = new THREE.Group();
       ventsGroup = new THREE.Group();
-      buildDoorsAndVents(w, h);
+      buildCabinetsAndVents(w, h);
       scene.add(doorsGroup);
       scene.add(ventsGroup);
 
-      // CCTV Kamera
-      buildCctvCamera(h);
+      // KAMERA AN DER DECKE
+      buildCeilingCamera(h);
 
       // NPC Gruppe
       npcGroup = new THREE.Group();
@@ -367,24 +408,27 @@
     }
 
     function createCornerExtension(x, y, z, rotationY, wallMat, floorMat, ceilingMat) {
-      const corner = new THREE.Group();
-      corner.position.set(x, y, z);
-      corner.rotation.y = rotationY;
+      const cornerGroup = new THREE.Group();
+      cornerGroup.position.set(x, y, z);
+      cornerGroup.rotation.y = rotationY;
+
       const extL = 10;
+      const floor = new THREE.Mesh(new THREE.PlaneGeometry(4, extL), floorMat);
+      floor.rotation.x = -Math.PI / 2;
+      floor.position.set(0, 0, extL/2);
+      cornerGroup.add(floor);
 
-      const fl = new THREE.Mesh(new THREE.PlaneGeometry(4, extL), floorMat);
-      fl.rotation.x = -Math.PI / 2; fl.position.set(0, 0, extL/2);
-      corner.add(fl);
+      const ceiling = new THREE.Mesh(new THREE.PlaneGeometry(4, extL), ceilingMat);
+      ceiling.rotation.x = Math.PI / 2;
+      ceiling.position.set(0, 3.5, extL/2);
+      cornerGroup.add(ceiling);
 
-      const cl = new THREE.Mesh(new THREE.PlaneGeometry(4, extL), ceilingMat);
-      cl.rotation.x = Math.PI / 2; cl.position.set(0, 3.5, extL/2);
-      corner.add(cl);
+      const backWall = new THREE.Mesh(new THREE.PlaneGeometry(4, 3.5), wallMat);
+      backWall.position.set(0, 1.75, extL);
+      backWall.rotation.y = Math.PI;
+      cornerGroup.add(backWall);
 
-      const bw = new THREE.Mesh(new THREE.PlaneGeometry(4, 3.5), wallMat);
-      bw.position.set(0, 1.75, extL); bw.rotation.y = Math.PI;
-      corner.add(bw);
-
-      scene.add(corner);
+      scene.add(cornerGroup);
     }
 
     function buildPosters(count) {
@@ -393,7 +437,12 @@
       const step = 24 / (count - 1 || 1);
       
       for(let i = 0; i < count; i++) {
-        const tex = createPosterTexture(`POSTER ${i+1}`, i%2===0?"#1e88e5":"#e53935", "#ffffff", i===1?'eyes':'none');
+        let tex;
+        if (i === 1) {
+          tex = createPosterTexture("SCHILD B", "#e53935", "#ffffff", 'eyes');
+        } else {
+          tex = createPosterTexture(`SCHILD ${String.fromCharCode(65+i)}`, i%2===0?"#1e88e5":"#43a047", "#ffffff");
+        }
         const mesh = new THREE.Mesh(pGeo, new THREE.MeshPhongMaterial({ map: tex }));
         mesh.position.set(-1.98, 1.8, 12 - (i * step));
         mesh.rotation.y = Math.PI / 2;
@@ -401,21 +450,26 @@
       }
     }
 
-    function buildDoorsAndVents(w, h) {
-      const doorMat = new THREE.MeshPhongMaterial({ color: 0x5a6572 });
+    function buildCabinetsAndVents(w, h) {
+      const doorTex = createMetalDoorTexture();
+      const doorMat = new THREE.MeshPhongMaterial({ map: doorTex });
       const ventMat = new THREE.MeshPhongMaterial({ color: 0x222222 });
 
-      [-10, 0, 10].forEach(z => {
-        const door = new THREE.Mesh(new THREE.BoxGeometry(0.1, 2.2, 1.2), doorMat);
-        door.position.set(w/2 - 0.05, 1.1, z);
-        
-        // Türklinke
-        const knob = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.1, 0.1), new THREE.MeshPhongMaterial({color: 0xaaaaaa}));
-        knob.position.set(-0.05, 0, -0.4);
-        knob.name = "knob";
-        door.add(knob);
+      const positionsZ = [-10, 0, 10];
+      positionsZ.forEach(z => {
+        const doorPivot = new THREE.Group();
+        doorPivot.position.set(w/2 - 0.05, 1.1, z - 0.6);
 
-        doorsGroup.add(door);
+        const doorMesh = new THREE.Mesh(new THREE.BoxGeometry(0.1, 2.2, 1.2), doorMat);
+        doorMesh.position.set(0, 0, 0.6);
+        doorPivot.add(doorMesh);
+
+        const knob = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.1, 0.1), new THREE.MeshPhongMaterial({color: 0xaaaaaa}));
+        knob.position.set(-0.05, 0, 0.2);
+        knob.name = "knob";
+        doorMesh.add(knob);
+
+        doorsGroup.add(doorPivot);
 
         const vent = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.4, 0.8), ventMat);
         vent.position.set(w/2 - 0.05, 2.8, z);
@@ -423,39 +477,73 @@
       });
     }
 
-    function buildCctvCamera(h) {
-      cctvCameraMesh = new THREE.Group();
-      const body = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.2, 0.4), new THREE.MeshPhongMaterial({ color: 0xdddddd }));
+    function buildCeilingCamera(h) {
+      cameraMesh = new THREE.Group();
+      
+      const mountGeo = new THREE.CylinderGeometry(0.05, 0.05, 0.3, 8);
+      const darkMat = new THREE.MeshPhongMaterial({ color: 0x222222 });
+      const mount = new THREE.Mesh(mountGeo, darkMat);
+      mount.position.set(0, h - 0.15, 0);
+      cameraMesh.add(mount);
+
+      const bodyGeo = new THREE.BoxGeometry(0.2, 0.2, 0.4);
+      const bodyMat = new THREE.MeshPhongMaterial({ color: 0xdddddd });
+      const body = new THREE.Mesh(bodyGeo, bodyMat);
       body.position.set(0, h - 0.3, 0);
-      cctvCameraMesh.add(body);
+      body.rotation.x = Math.PI / 6;
+      cameraMesh.add(body);
 
-      cameraLedMesh = new THREE.Mesh(new THREE.SphereGeometry(0.03), new THREE.MeshBasicMaterial({ color: 0x330000 }));
-      cameraLedMesh.position.set(0.08, h - 0.25, 0.2);
-      cctvCameraMesh.add(cameraLedMesh);
+      const lensGeo = new THREE.CylinderGeometry(0.06, 0.06, 0.1, 12);
+      const lens = new THREE.Mesh(lensGeo, darkMat);
+      lens.rotation.x = Math.PI / 2 + Math.PI / 6;
+      lens.position.set(0, h - 0.32, 0.2);
+      cameraMesh.add(lens);
 
-      scene.add(cctvCameraMesh);
+      const ledGeo = new THREE.SphereGeometry(0.03, 8, 8);
+      const ledMat = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+      redCameraLed = new THREE.Mesh(ledGeo, ledMat);
+      redCameraLed.position.set(0.08, h - 0.25, 0.2);
+      cameraMesh.add(redCameraLed);
+
+      scene.add(cameraMesh);
     }
 
     function spawnNPC(options = {}) {
       while(npcGroup.children.length > 0) npcGroup.remove(npcGroup.children[0]);
 
       const scaleY = options.scaleY || 1.0;
-      const npcMat = new THREE.MeshPhongMaterial({ color: options.color || 0x334466 });
-      
-      const body = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.3, 1.4 * scaleY), npcMat);
-      const head = new THREE.Mesh(new THREE.SphereGeometry(0.25 * (scaleY > 1.5 ? 0.7 : 1)), npcMat);
-      head.position.y = (0.9 * scaleY);
-      
+      const headColor = options.faceType === 'taped' ? 0xaaaa88 : (options.faceType === 'smiling' ? 0xffddaa : 0x334466);
+      const bodyMat = new THREE.MeshPhongMaterial({ color: options.color || 0x223344 });
+      const headMat = new THREE.MeshPhongMaterial({ color: headColor });
+
       const npc = new THREE.Group();
-      npc.add(body); npc.add(head);
-      npc.position.set(options.xOffset || 0, 0.9 * scaleY, options.startZ || -15);
-      
+      const body = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.3, 1.4 * scaleY), bodyMat);
+      body.position.y = (0.7 * scaleY);
+      npc.add(body);
+
+      const head = new THREE.Mesh(new THREE.SphereGeometry(0.25 * (scaleY > 1.8 ? 0.7 : 1)), headMat);
+      head.position.y = (1.5 * scaleY);
+      npc.add(head);
+
+      if (options.faceType === 'smiling') {
+        const mouth = new THREE.Mesh(new THREE.TorusGeometry(0.1, 0.02, 8, 16, Math.PI), new THREE.MeshBasicMaterial({ color: 0x000000 }));
+        mouth.position.set(0, 1.45 * scaleY, 0.22);
+        mouth.rotation.x = Math.PI;
+        npc.add(mouth);
+      } else if (options.faceType === 'taped') {
+        const tape = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.1, 0.05), new THREE.MeshBasicMaterial({ color: 0x887755 }));
+        tape.position.set(0, 1.5 * scaleY, 0.23);
+        npc.add(tape);
+      }
+
+      npc.position.set(options.xOffset || 0, 0, options.startZ || -18);
       npcGroup.add(npc);
+
       npcBehavior = options.behavior || 'walk';
       npcSpeed = options.walkSpeed || 3.5;
     }
 
-    // --- LEVEL STAGE RESET & ANOMALIE STEUERUNG ---
+    // --- Level Reset & Anomaly Logik ---
     function setupStage(stage) {
       currentStage = stage;
       stageNumDisplay.innerText = currentStage;
@@ -463,181 +551,230 @@
       camera.position.set(0, 1.7, 18);
       triggerZonePassed = false;
 
-      // Stage 0 ist immer normal
-      hasAnomaly = (stage === 0) ? false : Math.random() < 0.7;
+      if (stage === 0) {
+        hasAnomaly = false;
+      } else {
+        hasAnomaly = Math.random() < 0.65;
+      }
 
-      resetStageToNormal();
+      resetAnomalies();
 
       if (hasAnomaly) {
-        // Zufällige Auswahl aus den 33 Anomalien
         activeAnomalyType = Math.floor(Math.random() * 33) + 1;
         applyAnomaly(activeAnomalyType);
       }
     }
 
-    function resetStageToNormal() {
+    function resetAnomalies() {
       floorMesh.material.map = createTileTexture();
       exitSignUI.style.transform = "none";
       exitTextUI.innerText = "EXIT";
       ceilingSignMesh.material.map = createTextTexture("CONCOURSE");
-      
-      normalLightsGroup.children.forEach(l => {
-        if(l.isPointLight) { l.color.setHex(0xfffaed); l.intensity = 0.8; }
-        l.position.x = 0;
+
+      let lightIdx = 0;
+      normalLightsGroup.children.forEach(child => {
+        if (child.isPointLight) {
+          child.color.setHex(0xfffaed);
+          child.intensity = 0.8;
+        } else if (child.isMesh) {
+          const zPos = -15 + (lightIdx * 10);
+          child.position.set(0, 3.45, zPos);
+          lightIdx++;
+        }
       });
 
       buildPosters(6);
       doorsGroup.visible = true;
       ventsGroup.visible = true;
-      
-      doorsGroup.children.forEach(door => {
-        door.rotation.y = 0;
-        const knob = door.getObjectByName("knob");
-        if(knob) knob.position.set(-0.05, 0, -0.4);
+
+      doorsGroup.children.forEach(pivot => {
+        pivot.rotation.y = 0;
+        const doorMesh = pivot.children[0];
+        if (doorMesh) {
+          const knob = doorMesh.getObjectByName("knob");
+          if (knob) knob.position.set(-0.05, 0, 0.2);
+        }
       });
 
-      if(redWaterMesh) { scene.remove(redWaterMesh); redWaterMesh = null; }
-      if(facelessFigureMesh) { scene.remove(facelessFigureMesh); facelessFigureMesh = null; }
+      if (redWaterMesh) { scene.remove(redWaterMesh); redWaterMesh = null; }
+      if (facelessFigureMesh) { scene.remove(facelessFigureMesh); facelessFigureMesh = null; }
+      if (staircaseMesh) { scene.remove(staircaseMesh); staircaseMesh = null; }
+      if (dripMesh) { scene.remove(dripMesh); dripMesh = null; }
+      if (noEntryGroup) { scene.remove(noEntryGroup); noEntryGroup = null; }
+      if (pupilMeshLeft) { scene.remove(pupilMeshLeft); pupilMeshLeft = null; }
+      if (pupilMeshRight) { scene.remove(pupilMeshRight); pupilMeshRight = null; }
 
+      cameraMesh.rotation.y = 0;
       animatePostersSliding = false;
       trackPlayerWithPoster = false;
       trackPlayerWithPupils = false;
       enableFlickeringLights = false;
-      blinkCameraLed = false;
-      cameraLedMesh.material.color.setHex(0x330000);
+      isBlackout = false;
+      doorBanging = false;
 
       spawnNPC({ startZ: -18, behavior: 'walk' });
     }
 
-    // --- ANOMALIEN IMPLEMENTIERUNG ---
     function applyAnomaly(type) {
       switch(type) {
-        case 1: floorMesh.material.map = createTileTexture(true); break; // Gelbe Fliesen mit Gesichtern
-        case 2: // Rotes Wasser
-          redWaterMesh = new THREE.Mesh(new THREE.PlaneGeometry(4, 40), new THREE.MeshBasicMaterial({ color: 0xaa0000, transparent: true, opacity: 0.7 }));
+        case 1: floorMesh.material.map = createTileTexture(true); break;
+        case 2:
+          redWaterMesh = new THREE.Mesh(new THREE.PlaneGeometry(4, 40), new THREE.MeshBasicMaterial({ color: 0xbb0000, transparent: true, opacity: 0.75 }));
           redWaterMesh.rotation.x = -Math.PI / 2; redWaterMesh.position.y = 0.05;
           scene.add(redWaterMesh);
           break;
-        case 3: spawnNPC({ behavior: 'walk', color: 0x888877 }); break; // Taped Face Man
-        case 4: spawnNPC({ behavior: 'walk', color: 0xffccaa }); break; // Smiling Face Man
-        case 5: spawnNPC({ scaleY: 2.2, walkSpeed: 2.0 }); break; // Very tall man
-        case 6: spawnNPC({ walkSpeed: 8.0 }); break; // Fast walking man
-        case 7: spawnNPC({ behavior: 'stare', startZ: 0 }); break; // Staring man
-        case 8: // White faceless figure
-          facelessFigureMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.3, 1.8), new THREE.MeshBasicMaterial({ color: 0xffffff }));
-          facelessFigureMesh.position.set(1.2, 0.9, -16);
+        case 3: spawnNPC({ behavior: 'walk', faceType: 'taped' }); break;
+        case 4: spawnNPC({ behavior: 'walk', faceType: 'smiling' }); break;
+        case 5: spawnNPC({ scaleY: 2.3, walkSpeed: 2.5 }); break;
+        case 6: spawnNPC({ walkSpeed: 9.0 }); break;
+        case 7: spawnNPC({ behavior: 'stare', startZ: 0 }); break;
+        case 8: spawnNPC({ behavior: 'walk', walkSpeed: 0.0, startZ: -5 }); break;
+        case 9:
+          facelessFigureMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.3, 1.8), new THREE.MeshBasicMaterial({ color: 0xeeeeee }));
+          facelessFigureMesh.position.set(1.2, 0.9, -17);
           scene.add(facelessFigureMesh);
           break;
-        case 9: // Treppe am Ende
-          const stair = new THREE.Mesh(new THREE.BoxGeometry(4, 1, 4), new THREE.MeshPhongMaterial({ color: 0x444444 }));
-          stair.position.set(0, 0.5, -18); scene.add(stair);
+        case 10:
+          staircaseMesh = new THREE.Group();
+          for(let i=0; i<6; i++) {
+            const step = new THREE.Mesh(new THREE.BoxGeometry(4, 0.3, 0.6), new THREE.MeshPhongMaterial({ color: 0x333333 }));
+            step.position.set(0, i*0.3 + 0.15, -16 - (i*0.6));
+            staircaseMesh.add(step);
+          }
+          scene.add(staircaseMesh);
           break;
-        case 10: buildPosters(7); break; // 7 Poster statt 6
-        case 11: // Horror Movefes Poster
+        case 11: buildPosters(7); break;
+        case 12:
           postersGroup.children[postersGroup.children.length - 1].material.map = createPosterTexture("", "", "", "horror");
           break;
-        case 12: // Disfigured eyes poster
-          postersGroup.children[1].material.map = createPosterTexture("", "", "", "horror");
+        case 13:
+          postersGroup.children[1].material.map = createPosterTexture("SCHILD B", "#e53935", "#ffffff", "disfigured");
           break;
-        case 13: animatePostersSliding = true; break; // Poster wandern
-        case 14: trackPlayerWithPoster = true; break; // Poster folgt Bewegung
-        case 15: trackPlayerWithPupils = true; break; // Pupillen folgen Bewegung
-        case 16: exitSignUI.style.transform = "rotate(180deg)"; break; // Inverted Exit Sign
-        case 17: ceilingSignMesh.material.map = createTextTexture("TURN BACK"); break; // Turn Back Sign
-        case 18: // Verstragte Lichter
-          normalLightsGroup.children.forEach(l => l.position.x = (Math.random() - 0.5) * 1.5);
+        case 14: animatePostersSliding = true; break;
+        case 15: trackPlayerWithPoster = true; break;
+        case 16:
+          trackPlayerWithPupils = true;
+          const eyeMat = new THREE.MeshBasicMaterial({ color: 0x000000 });
+          pupilMeshLeft = new THREE.Mesh(new THREE.SphereGeometry(0.04), eyeMat);
+          pupilMeshRight = new THREE.Mesh(new THREE.SphereGeometry(0.04), eyeMat);
+          scene.add(pupilMeshLeft); scene.add(pupilMeshRight);
           break;
-        case 19: blinkCameraLed = true; break; // Blinkende CCTV LED
-        case 20: doorsGroup.children[1].visible = false; break; // Tür fehlt
-        case 21: // Banging Door (Animation im Loop)
-          doorsGroup.children[0].rotation.y = 0.05;
+        case 17: exitSignUI.style.transform = "rotate(180deg)"; break;
+        case 18: ceilingSignMesh.material.map = createTextTexture("TURN BACK"); break;
+        case 19:
+          let idx = 0;
+          normalLightsGroup.children.forEach(child => {
+            if (child.isMesh) {
+              child.position.x = (idx % 2 === 0 ? 0.8 : -0.8);
+              child.rotation.y = (idx % 2 === 0 ? 0.3 : -0.3);
+              idx++;
+            }
+          });
           break;
-        case 22: doorsGroup.children[0].rotation.y = -0.4; break; // Tür öffnet sich leicht
-        case 23: // Peeping from door
-          doorsGroup.children[0].rotation.y = -0.3;
-          const eye = new THREE.Mesh(new THREE.SphereGeometry(0.08), new THREE.MeshBasicMaterial({ color: 0xffffff }));
-          eye.position.set(1.8, 1.5, -10); scene.add(eye);
+        case 20: redCameraLed.material.color.setHex(0xff0000); break;
+        case 21: doorsGroup.children[1].visible = false; break;
+        case 22: doorBanging = true; break;
+        case 23: doorsGroup.children[0].rotation.y = -0.4; break;
+        case 24:
+          doorsGroup.children[0].rotation.y = -0.25;
+          const peepingEye = new THREE.Mesh(new THREE.SphereGeometry(0.05), new THREE.MeshBasicMaterial({ color: 0xffffff }));
+          peepingEye.position.set(1.85, 1.5, -10.3);
+          scene.add(peepingEye);
           break;
-        case 24: ventsGroup.visible = false; break; // Vent windows missing
-        case 25: // Black liquid dripping
-          const drip = new THREE.Mesh(new THREE.BoxGeometry(0.1, 1.5, 0.1), new THREE.MeshBasicMaterial({ color: 0x000000 }));
-          drip.position.set(1.9, 2.0, 0); scene.add(drip);
+        case 25: ventsGroup.visible = false; break;
+        case 26:
+          dripMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 2.5), new THREE.MeshBasicMaterial({ color: 0x050505 }));
+          dripMesh.position.set(1.9, 1.4, 0);
+          scene.add(dripMesh);
           break;
-        case 26: // Bright yellow lighting
-          normalLightsGroup.children.forEach(l => { if(l.isPointLight) l.color.setHex(0xffff00); });
+        case 27:
+          normalLightsGroup.children.forEach(l => { if (l.isPointLight) l.color.setHex(0xffff00); });
           break;
-        case 27: enableFlickeringLights = true; break; // Flackernde Lichter
-        case 28: // Sudden Blackout Zone
-          normalLightsGroup.children.forEach(l => { if(l.isPointLight) l.intensity = 0.05; });
-          break;
-        case 29: // No Entry Signs überall
-          for(let z=-15; z<=15; z+=5) {
-            const noEntry = new THREE.Mesh(new THREE.PlaneGeometry(0.6, 0.6), new THREE.MeshBasicMaterial({ color: 0xff0000 }));
-            noEntry.position.set(-1.98, 2.2, z); noEntry.rotation.y = Math.PI/2;
-            scene.add(noEntry);
+        case 28: enableFlickeringLights = true; break;
+        case 29: isBlackout = true; break;
+        case 30:
+          noEntryGroup = new THREE.Group();
+          for(let z=-16; z<=16; z+=4) {
+            const sign = new THREE.Mesh(new THREE.PlaneGeometry(0.8, 0.8), new THREE.MeshBasicMaterial({ color: 0xcc0000 }));
+            sign.position.set(-1.97, 1.8, z);
+            sign.rotation.y = Math.PI / 2;
+            noEntryGroup.add(sign);
           }
+          scene.add(noEntryGroup);
           break;
-        case 30: // Twin men
-          spawnNPC({ xOffset: -0.6, startZ: -10 });
+        case 31:
+          spawnNPC({ xOffset: -0.5, startZ: -10 });
           const twin = npcGroup.children[0].clone();
-          twin.position.x = 0.6;
+          twin.position.x = 0.5;
           npcGroup.add(twin);
           break;
-        case 31: // Türknauf in der Mitte
-          const knob = doorsGroup.children[0].getObjectByName("knob");
-          if(knob) knob.position.set(-0.05, 0, 0);
+        case 32:
+          const doorMesh = doorsGroup.children[0].children[0];
+          if (doorMesh) {
+            const knob = doorMesh.getObjectByName("knob");
+            if (knob) knob.position.set(-0.05, 0, 0.6);
+          }
           break;
-        case 32: floorMesh.material.map = createTileTexture(false, true); break; // Uneven Tiles
-        case 33: spawnNPC({ walkSpeed: 0.0 }); break; // Man stops in hallway
+        case 33: floorMesh.material.map = createTileTexture(false, true); break;
       }
     }
 
     function checkPlayerProgress() {
       if (!triggerZonePassed && camera.position.z < -5) triggerZonePassed = true;
 
-      // Vorwärts durchgelaufen
       if (camera.position.z < -18) {
         setupStage(hasAnomaly ? 0 : currentStage + 1);
       }
 
-      // Umgedreht und zurückgelaufen
       if (triggerZonePassed && camera.position.z > 18) {
         setupStage(hasAnomaly ? currentStage + 1 : 0);
       }
 
       if (currentStage >= 8) {
-        alert("GEWONNEN! Du hast EXIT 8 erreicht!");
+        alert("DU HAST DEN AUSGANG GEFUNDEN! GLÜCKWUNSCH!");
         setupStage(0);
       }
     }
 
-    // --- INPUT & ANIMATION LOOP ---
-    function onKeyDown(e) {
-      if(e.code==='KeyW'||e.code==='ArrowUp') moveForward = true;
-      if(e.code==='KeyS'||e.code==='ArrowDown') moveBackward = true;
-      if(e.code==='KeyA'||e.code==='ArrowLeft') moveLeft = true;
-      if(e.code==='KeyD'||e.code==='ArrowRight') moveRight = true;
+    // --- Input Handling ---
+    function onKeyDown(event) {
+      switch (event.code) {
+        case 'KeyW': case 'ArrowUp': moveForward = true; break;
+        case 'KeyS': case 'ArrowDown': moveBackward = true; break;
+        case 'KeyA': case 'ArrowLeft': moveLeft = true; break;
+        case 'KeyD': case 'ArrowRight': moveRight = true; break;
+      }
     }
-    function onKeyUp(e) {
-      if(e.code==='KeyW'||e.code==='ArrowUp') moveForward = false;
-      if(e.code==='KeyS'||e.code==='ArrowDown') moveBackward = false;
-      if(e.code==='KeyA'||e.code==='ArrowLeft') moveLeft = false;
-      if(e.code==='KeyD'||e.code==='ArrowRight') moveRight = false;
+
+    function onKeyUp(event) {
+      switch (event.code) {
+        case 'KeyW': case 'ArrowUp': moveForward = false; break;
+        case 'KeyS': case 'ArrowDown': moveBackward = false; break;
+        case 'KeyA': case 'ArrowLeft': moveLeft = false; break;
+        case 'KeyD': case 'ArrowRight': moveRight = false; break;
+      }
     }
-    function onMouseMove(e) {
+
+    function onMouseMove(event) {
       if (!isLocked) return;
-      lon += (e.movementX || 0) * 0.15;
-      lat -= (e.movementY || 0) * 0.15;
+      const movementX = event.movementX || 0;
+      const movementY = event.movementY || 0;
+
+      lon += movementX * 0.15;
+      lat -= movementY * 0.15;
       lat = Math.max(-85, Math.min(85, lat));
     }
+
     function onWindowResize() {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);
     }
 
+    // --- Animation Loop ---
     function animate() {
       requestAnimationFrame(animate);
+
       const time = performance.now();
       const delta = (time - prevTime) / 1000;
       prevTime = time;
@@ -659,13 +796,14 @@
         direction.x = Number(moveRight) - Number(moveLeft);
         direction.normalize();
 
-        const speed = 25.0; // Schnelle, flüssige Steuerung
+        const speed = 12.0;
         if (moveForward || moveBackward) velocity.z -= direction.z * speed * delta;
         if (moveLeft || moveRight) velocity.x -= direction.x * speed * delta;
 
         camera.translateX(-velocity.x * delta);
         camera.translateZ(velocity.z * delta);
         camera.position.y = 1.7;
+
         camera.position.x = Math.max(-1.5, Math.min(1.5, camera.position.x));
 
         // NPC Bewegung
@@ -677,21 +815,43 @@
           }
         });
 
-        // Effekte & Anomalie Animations-Updates
-        if (enableFlickeringLights && Math.random() < 0.1) {
-          normalLightsGroup.children.forEach(l => { if(l.isPointLight) l.intensity = Math.random() * 0.9; });
-        }
-        if (blinkCameraLed) {
-          cameraLedMesh.material.color.setHex((Math.floor(time / 400) % 2 === 0) ? 0xff0000 : 0x330000);
-        }
-        if (animatePostersSliding) {
-          postersGroup.children.forEach(p => {
-            p.position.z += 0.5 * delta;
-            if(p.position.z > 15) p.position.z = -15;
+        // Dynamic Anomaly Animations
+        if (enableFlickeringLights) {
+          normalLightsGroup.children.forEach(l => {
+            if (l.isPointLight) l.intensity = Math.random() < 0.2 ? 0.1 : 0.8;
           });
         }
+
+        if (isBlackout) {
+          normalLightsGroup.children.forEach(l => {
+            if (l.isPointLight) l.intensity = 0.02;
+          });
+        }
+
+        if (doorBanging && doorsGroup.children[0]) {
+          doorsGroup.children[0].rotation.y = Math.sin(time * 0.03) * 0.08;
+        }
+
+        if (animatePostersSliding) {
+          postersGroup.children.forEach(p => {
+            p.position.z += 1.2 * delta;
+            if (p.position.z > 15) p.position.z = -15;
+          });
+        }
+
         if (trackPlayerWithPoster && postersGroup.children[1]) {
           postersGroup.children[1].position.z = camera.position.z;
+        }
+
+        if (trackPlayerWithPupils && pupilMeshLeft && pupilMeshRight && postersGroup.children[1]) {
+          const posterZ = postersGroup.children[1].position.z;
+          const dz = Math.max(-0.2, Math.min(0.2, (camera.position.z - posterZ) * 0.03));
+          pupilMeshLeft.position.set(-1.94, 1.8, posterZ + 0.15 + dz);
+          pupilMeshRight.position.set(-1.94, 1.8, posterZ - 0.15 + dz);
+        }
+
+        if (redCameraLed) {
+          redCameraLed.material.visible = Math.floor(time / 500) % 2 === 0;
         }
 
         checkPlayerProgress();
